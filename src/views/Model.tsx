@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import DrawIO from "../components/DrawIO";
-import '../styles/App.css';
+import '../styles/Model.css'
 
 function Model() {
     const [diagram, setDiagram] = useState({})
@@ -11,7 +11,8 @@ function Model() {
     };
 
     return (
-        <div>
+        <div className={"Model"}>
+            <h2>Create your DFD Model here</h2>
             <DrawIO sendDiagram={receiveDiagram}/>
         </div>
     );

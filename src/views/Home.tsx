@@ -1,43 +1,32 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
+import '../styles/Home.css';
 
 function Home() {
 
-    const [isCreateClicked, setIsCreateClicked] = useState(false);
-    const [isUploadClicked, setIsUploadClicked] = useState(false);
-
-    const handleCreateClick = () => {
-        setIsCreateClicked(true);
-    };
-
-    const handleUploadClick = () => {
-        setIsUploadClicked(true);
-    }
-
     return (
-        <div className="App">
-            <header className="App-header">
+        <div className="Home">
+            <header className="Home-header">
                 <h1>CoReTM 2.0</h1>
                 <p>Threat modeling with STRIDE-per-Interaction</p>
-                <div className={"App-link"}>
-                    <Link to={"/login"}>
-                        <button className={"App-button"} name={"login"}>
-                            Login
-                        </button>
-                    </Link>
-
-                    <Link to="/signup">
-                        <button className={"App-button"} name={"signup"}>
-                            Sign Up
-                        </button>
-                    </Link>
-                    <Link to={"/model"}>
-                        <button className={"App-button"} name={"login"}>
-                            Continue without login
-                        </button>
-                    </Link>
-                </div>
             </header>
+            <div className={"Home-link"}>
+                <Link to={"/login"}>
+                    <button className={"Home-button"} id={"Home-button-1"} name={"login"}>
+                        Login
+                    </button>
+                </Link>
+                <Link to="/signup">
+                    <button className={"Home-button"} id={"Home-button-2"} name={"signup"}>
+                        Sign Up
+                    </button>
+                </Link>
+                <Link to={"/model"}>
+                    <button className={"Home-button"} id={"Home-button-3"} name={"login"}>
+                        Continue without login
+                    </button>
+                </Link>
+            </div>
         </div>
     );
 }
