@@ -13,6 +13,10 @@
     color: white;
 }
 
+.App-link {
+    flex-direction: row;
+}
+
 .App-button {
     background-color: #61dafb;
     border: none;
