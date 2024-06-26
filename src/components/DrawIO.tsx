@@ -1,43 +1,55 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import CORSCommunicator from '../DrawIO/CORSCommunicator';
 import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 
 
-// @ts-ignore
-function DrawIO({ sendDiagram }) {
-    const iframeRef = useRef(null);
+interface IStoredModel {
+    id: string | null;
+    diagram: string;
+}
 
-    const initialized = useRef(false);
+function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void }) {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [initialized, setInitialized] = useState(false);
+
     useEffect(() => {
-        if (!initialized.current) {
-            var localStorageModel = new LocalStorageModel()
+        if (!initialized) {
+            const localStorageModel = new LocalStorageModel();
+            let loaded: IStoredModel[] = [];
+            let selectedModel = localStorage.getItem('selectedModel');
+
             try {
-                var selectedModel = localStorage.getItem('selectedModel')
-                // @ts-ignore
-                var loaded = JSON.parse(localStorage.getItem('storedModels')) || []
+                selectedModel = localStorage.getItem('selectedModel')
+                loaded = JSON.parse(localStorage.getItem('storedModels') || '[]');
             } catch (error) {
                 loaded = []
             }
-            var selectedStoreModel = loaded.find((m: { id: string | null; }) => m.id === selectedModel)
-            if (selectedStoreModel.diagram) {
-                localStorageModel.write(selectedStoreModel.diagram)
+
+
+            const selectedStoreModel: IStoredModel | undefined = loaded.find((m: IStoredModel) => m.id === selectedModel);
+
+            if (selectedStoreModel?.diagram) {
+                localStorageModel.write(selectedStoreModel.diagram);
             } else {
                 localStorage.removeItem('diagram')
             }
 
-            initialized.current = true
-            var drawioView = new CORSCommunicator(iframeRef.current)
-            var stateController = new DrawioController(drawioView, localStorageModel)
-            localStorageModel.observe(function(diagram: any) {
+            setInitialized(true);
+
+            const drawioView = new CORSCommunicator(iframeRef.current);
+            const stateController = new DrawioController(drawioView, localStorageModel);
+
+            localStorageModel.observe(function(diagram: string) {
                 sendDiagram(diagram)
-                selectedStoreModel.diagram = diagram
+                // @ts-ignore
+                //selectedStoreModel.diagram = diagram;
                 localStorage.setItem('storedModels', JSON.stringify(loaded))
             })
             sendDiagram(localStorageModel.read())
         }
-    }, [sendDiagram]);
+    }, [initialized, sendDiagram]);
 
     return (
         <iframe

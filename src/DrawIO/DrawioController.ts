@@ -1,10 +1,15 @@
 import cssVariables from "./variables";
 import coretm from "./libs/CoReTM.json";
-import notes from "./libs/Notes.json";
+import CORSCommunicator from "./CORSCommunicator";
+import LocalStorageModel from "./LocalStorageModel";
+
+interface IDraft {
+    xml: string;
+}
 
 export default class DrawioController {
-    private drawio: any;
-    private storage: any;
+    private drawio: CORSCommunicator;
+    private storage: LocalStorageModel;
     private clientId: number;
 
     constructor(drawio: any, storage: any) {
@@ -25,35 +30,44 @@ export default class DrawioController {
     }
 
     handleIncomingEvents(message: any) {
+        console.log("Message data: " + message.data);
         if (message.data.length <= 0) {
             return console.log('Empty event received:', message)
         }
         if (message.data === 'ready') {
+            console.log('Drawio ready');
             //this.drawio.contentWindow.postMessage(JSON.stringify({ action: 'load', xmlpng: "" }), '*');
             return
         }
         if (!this.isJsonString(message.data)) {
+            console.error('Invalid JSON received:', message.data);
             return
         }
-        var msg = JSON.parse(message.data)
-        var {event} = msg
+        const msg = JSON.parse(message.data);
+        console.info('Incoming message:', msg);
+
+        const {event} = msg;
+        console.info('Event:', event);
+        const {xml} = msg;
+        console.info('XML:', xml);
 
         if (event === 'configure') {
+            console.log("Configure event received")
             this.configureDrawio()
         } else if (event === 'init') {
+            console.log("Init event received")
             this.loadDrawio()
         } else if (event === 'export') {
+            console.log("Export event received")
             this.storeDiagram(msg)
             this.close()
         } else if (event === 'autosave') {
+            console.log("Autosave event received")
             this.autoSaveDiagram(msg)
         }
     }
 
     configureDrawio() {
-        // @ts-ignore
-        // @ts-ignore
-        // @ts-ignore
         var configurationAction = {
             action: 'configure',
             config: {
@@ -98,22 +112,22 @@ export default class DrawioController {
                     "Times New Roman"
                 ],
                 ui: 'dark',
-                defaultLibraries: 'ThreatFinderAI',
-                defaultCustomLibraries: ['ThreatFinderAI'],
-                enabledLibraries: ['ThreatFinderAI'],
+                defaultLibraries: 'CoReTM',
+                defaultCustomLibraries: ['CoReTM'],
+                enabledLibraries: ['CoReTM'],
                 libraries: [{
                     "title": {
-                        "main": "ThreatFinderAI"
+                        "main": "CoReTM"
                     },
                     "entries": [{
-                        "id": "ThreatFinderAI",
+                        "id": "CoReTM",
                         "title": {
-                            "main": "ThreatFinderAI",
-                            "de": "ThreatFinderAI"
+                            "main": "CoReTM",
+                            "de": "CoReTM"
                         },
                         "desc": {
-                            "main": "ThreatFinderAI",
-                            "de": "ThreatFinderAI"
+                            "main": "CoReTM",
+                            "de": "CoReTM"
                         },
                         "libs": [{
                             "title": {
@@ -121,12 +135,6 @@ export default class DrawioController {
                                 "de": "CoReTM"
                             },
                             "data": coretm
-                        }, {
-                            "title": {
-                                "main": "Notes",
-                                "de": "Notes"
-                            },
-                            "data": notes
                         }]
                     }]
                 }]
@@ -135,45 +143,31 @@ export default class DrawioController {
         this.drawio.send(configurationAction)
     }
 
-    loadDrawio() {
-        var draft = this.storage.read()
-        var loadAction = {}
-        if (draft != null) {
-            var rec = draft
-            loadAction = {
+    loadDrawio(): void {
+        const draft: IDraft | null = this.storage.read("DrawioMsg");
+
+        if (draft) {
+            let loadAction = {
                 action: 'load',
                 autosave: 1,
-                xml: rec.xml
-            }
-
-            var statusAction = {
+                xml: draft.xml
+            };
+            const statusAction = {
                 action: 'status',
                 modified: true
-            }
-
-            this.drawio.send(loadAction)
-            this.drawio.send(statusAction)
+            };
+            this.drawio.send(loadAction);
+            this.drawio.send(statusAction);
         } else {
-            loadAction = {
+            let loadAction = {
                 action: 'load',
                 autosave: 1,
                 xml: ""
-            }
-            this.drawio.send(loadAction)
+            };
+            this.drawio.send(loadAction);
         }
     }
 
-    mergeChanges(record: any) {
-        if (record.clientId === this.clientId) {
-            return
-        }
-        var {xml} = record
-        var mergeAction = {
-            "action": "merge",
-            "xml": xml
-        }
-        this.drawio.send(mergeAction)
-    }
 
     storeDiagram(msg: any) {
         var svg = atob(msg.data.substring(msg.data.indexOf(',') + 1))
@@ -183,9 +177,9 @@ export default class DrawioController {
     }
 
     autoSaveDiagram(msg: any) {
-        this.storage.write({
-            xml: msg.xml
-        })
+        this.storage.write(JSON.stringify(msg.xml), 'DrawioXML');
+        // TODO test if stringify can be accessed when reloading the page. Accessor is line 147
+        this.storage.write(JSON.stringify(msg), 'DrawioMsg');
     }
 
     close() {

@@ -1,46 +1,37 @@
 export default class LocalStorageModel {
     private storageKey: string;
     private repo: Storage;
-    private callbacks: any[];
+    private callbacks: ((event: StorageEvent) => void)[];
     constructor(storageKey = 'diagram') {
         this.storageKey = storageKey
         this.repo = localStorage
         this.callbacks = []
     }
-    observe(callback : any) {
+    observe(callback : (record : string) => void) {
         var key = this.storageKey
-        this.callbacks.push(function (e: { key: string; newValue: string; }) {
-            //console.log('callback fire!')
+        this.callbacks.push((e: StorageEvent) => {
             if (e.key !== key) {
-                return
+                return;
             }
-
-            var record = JSON.parse(e.newValue)
-            callback(record)
+            const record = e.newValue;
+            if (record) {
+                callback(record);
+            }
         })
     }
 
-    read(key = this.storageKey) {
-        var item = localStorage.getItem(key)
-        // @ts-ignore
-        return JSON.parse(item)
+    read(key = this.storageKey): any {
+        return this.repo.getItem(key);
     }
 
-    write(value : any, key = this.storageKey) {
-        // @ts-ignore
-        if (typeof value !== String) {
-            value = JSON.stringify(value)
-        }
-
-        // Dispatch StorageEvent manually for subscribers
-        // in same browser context
+    write(value: any, key: any = this.storageKey) {
+        const oldValue = this.read(key);
         const event = new StorageEvent('storage', {
             key: key,
-            oldValue: this.read(key),
+            oldValue: oldValue,
             newValue: value,
-        })
-
-        localStorage.setItem(key, value)
-        this.callbacks.forEach(c => c(event))
+        });
+        this.repo.setItem(key, value);
+        this.callbacks.forEach(c => c(event));
     }
 }

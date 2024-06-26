@@ -6,8 +6,10 @@ function Model() {
     const [diagram, setDiagram] = useState({})
 
 
-    const receiveDiagram = (diagram: any) => {
-        setDiagram(diagram);
+    const receiveDiagram = (diagram: string | null) => {
+        if (diagram) {
+            setDiagram(diagram);
+        }
     };
 
     return (

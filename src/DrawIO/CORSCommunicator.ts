@@ -1,16 +1,18 @@
 export default class CORSCommunicator {
-    private target: any;
-    constructor (target : any) {
-        this.target = target
+    private target: HTMLIFrameElement | null;
+
+    constructor(target: HTMLIFrameElement | null) {
+        this.target = target;
     }
-    send (message : any) {
-        var stringified = JSON.stringify(message);
+
+    send(message: object) {
+        const stringified = JSON.stringify(message);
         if (this.target && this.target.contentWindow) {
             this.target.contentWindow.postMessage(stringified, '*');
         }
-
     }
-    receive (callback : any) {
-        window.addEventListener('message', callback)
+
+    receive(callback: (event: MessageEvent) => void) {
+        window.addEventListener('message', callback);
     }
 }
