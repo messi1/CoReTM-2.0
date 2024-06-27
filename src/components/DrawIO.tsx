@@ -4,12 +4,6 @@ import CORSCommunicator from '../DrawIO/CORSCommunicator';
 import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 
-
-interface IStoredModel {
-    id: string | null;
-    diagram: string;
-}
-
 function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void }) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [initialized, setInitialized] = useState(false);
@@ -17,24 +11,6 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     useEffect(() => {
         if (!initialized) {
             const localStorageModel = new LocalStorageModel();
-            let loaded: IStoredModel[] = [];
-            let selectedModel = localStorage.getItem('selectedModel');
-
-            try {
-                selectedModel = localStorage.getItem('selectedModel')
-                loaded = JSON.parse(localStorage.getItem('storedModels') || '[]');
-            } catch (error) {
-                loaded = []
-            }
-
-
-            const selectedStoreModel: IStoredModel | undefined = loaded.find((m: IStoredModel) => m.id === selectedModel);
-
-            if (selectedStoreModel?.diagram) {
-                localStorageModel.write(selectedStoreModel.diagram);
-            } else {
-                localStorage.removeItem('diagram')
-            }
 
             setInitialized(true);
 
@@ -43,13 +19,10 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
 
             localStorageModel.observe(function(diagram: string) {
                 sendDiagram(diagram)
-                // @ts-ignore
-                //selectedStoreModel.diagram = diagram;
-                localStorage.setItem('storedModels', JSON.stringify(loaded))
             })
             sendDiagram(localStorageModel.read())
         }
-    }, [initialized, sendDiagram]);
+    }, [sendDiagram]);
 
     return (
         <iframe
