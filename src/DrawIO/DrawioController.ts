@@ -3,20 +3,13 @@ import coretm from "./libs/CoReTM.json";
 import CORSCommunicator from "./CORSCommunicator";
 import LocalStorageModel from "./LocalStorageModel";
 
-interface IDraft {
-    xml: string;
-}
-
 export default class DrawioController {
     private drawio: CORSCommunicator;
     private storage: LocalStorageModel;
-    private clientId: number;
 
     constructor(drawio: any, storage: any) {
         this.drawio = drawio
         this.storage = storage
-        this.clientId = Math.random() * 10e15
-
         this.drawio.receive(this.handleIncomingEvents.bind(this))
     }
 
@@ -30,9 +23,8 @@ export default class DrawioController {
     }
 
     handleIncomingEvents(message: any) {
-        console.log("Message data: " + message.data);
         if (message.data.length <= 0) {
-            return console.log('Empty event received:', message)
+            return
         }
         if (message.data === 'ready') {
             console.log('Drawio ready');
@@ -40,35 +32,34 @@ export default class DrawioController {
             return
         }
         if (!this.isJsonString(message.data)) {
-            console.error('Invalid JSON received:', message.data);
             return
         }
         const msg = JSON.parse(message.data);
-        console.info('Incoming message:', msg);
 
-        const {event} = msg;
-        console.info('Event:', event);
-        const {xml} = msg;
-        console.info('XML:', xml);
-
-        if (event === 'configure') {
-            console.log("Configure event received")
-            this.configureDrawio()
-        } else if (event === 'init') {
-            console.log("Init event received")
-            this.loadDrawio()
-        } else if (event === 'export') {
-            console.log("Export event received")
-            this.storeDiagram(msg)
-            this.close()
-        } else if (event === 'autosave') {
-            console.log("Autosave event received")
-            this.autoSaveDiagram(msg)
+        switch (msg.event) {
+            case 'autosave':
+                console.log('Autosave event: ', msg);
+                this.autoSaveDiagram(msg);
+                break;
+            case 'export':
+                console.log('Export event: ', msg);
+                this.storeDiagram(msg);
+                break;
+            case 'init':
+                console.log('Init event: ', msg);
+                this.loadDrawio();
+                break;
+            case 'configure':
+                console.log('Configure event: ', msg);
+                this.configureDrawio();
+                break;
+            default:
+                console.error('Unknown event: ', msg.event);
         }
     }
 
     configureDrawio() {
-        var configurationAction = {
+        const configurationAction = {
             action: 'configure',
             config: {
                 css: `
@@ -144,14 +135,16 @@ export default class DrawioController {
     }
 
     loadDrawio(): void {
-        const draft: IDraft | null = this.storage.read("DrawioMsg");
+        const draft: any | null = this.storage.read("DrawioMsg");
 
         if (draft) {
+            const parsedDraft = JSON.parse(draft);
             let loadAction = {
                 action: 'load',
                 autosave: 1,
-                xml: draft.xml
+                xml: parsedDraft.xml
             };
+            console.log("Load action: ", loadAction);
             const statusAction = {
                 action: 'status',
                 modified: true
@@ -170,7 +163,7 @@ export default class DrawioController {
 
 
     storeDiagram(msg: any) {
-        var svg = atob(msg.data.substring(msg.data.indexOf(',') + 1))
+        const svg = atob(msg.data.substring(msg.data.indexOf(',') + 1))
         this.storage.write({
             data: svg
         })
@@ -178,7 +171,6 @@ export default class DrawioController {
 
     autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg.xml), 'DrawioXML');
-        // TODO test if stringify can be accessed when reloading the page. Accessor is line 147
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
     }
 

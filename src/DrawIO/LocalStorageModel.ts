@@ -8,7 +8,7 @@ export default class LocalStorageModel {
         this.callbacks = []
     }
     observe(callback : (record : string) => void) {
-        var key = this.storageKey
+        const key = this.storageKey
         this.callbacks.push((e: StorageEvent) => {
             if (e.key !== key) {
                 return;
