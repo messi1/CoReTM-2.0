@@ -26,11 +26,6 @@ export default class DrawioController {
         if (message.data.length <= 0) {
             return
         }
-        if (message.data === 'ready') {
-            console.log('Drawio ready');
-            //this.drawio.contentWindow.postMessage(JSON.stringify({ action: 'load', xmlpng: "" }), '*');
-            return
-        }
         if (!this.isJsonString(message.data)) {
             return
         }
@@ -170,13 +165,32 @@ export default class DrawioController {
     }
 
     autoSaveDiagram(msg: any) {
-        this.storage.write(JSON.stringify(msg.xml), 'DrawioXML');
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
     }
 
     close() {
         // TOOD
         console.log('To be implemented')
+    }
+
+    returnXMLDocument(): XMLDocument | null  {
+        let xmlDataString : string | null = this.storage.read('DrawioMsg');
+        let parsed = JSON.parse(xmlDataString!);
+        let xml = parsed.xml;
+
+        if (xmlDataString) {
+            const parser = new DOMParser();
+            try
+            {
+                let xmlDoc : XMLDocument = parser.parseFromString(xml, "text/xml");
+                return xmlDoc;
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+        alert("No data found");
+        return null;
     }
 }
 
