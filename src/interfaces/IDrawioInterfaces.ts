@@ -1,16 +1,17 @@
 interface IElement {
     id: number
     name: string
+    type: string
     x1: number
     x2: number
     y1: number
     y2: number
-    type: string
 }
 
 export interface IDataFlow{
     id: number
     name: string
+    type: string
     sourceId: number
     targetId: number
 }
