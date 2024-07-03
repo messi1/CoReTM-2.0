@@ -5,11 +5,7 @@ import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 import '../styles/Model.css';
 
-import {
-    IDataFlow, IDataStore, IInteractor,
-    IMultiProcess, IProcess, ITrustBoundary,
-    Result
-} from "../interfaces/IDrawioInterfaces";
+import { Result } from "../interfaces/IDrawioInterfaces";
 
 
 
@@ -37,20 +33,13 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
 
     function handleClickEvent() {
         const xmlDoc : XMLDocument | null = drawioController!.returnXMLDocument()
-        let result: Result  = {
-            processesArray: [],
-            multiProcessesArray: [],
-            dataStoresArray: [],
-            dataFlowsArray: [],
-            interactorsArray: [],
-            trustBoundariesArray: []
-        }
+        let result: Result;
         if (xmlDoc) {
             result = drawioController!.parseDifferentDfdElementsFromXml(xmlDoc);
+            console.log(result)
         } else {
             alert("No diagram found")
         }
-        console.log(result)
     }
 
     return (
