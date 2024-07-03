@@ -32,14 +32,9 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     }, [sendDiagram]);
 
     function handleClickEvent() {
-        const xmlDoc : XMLDocument | null = drawioController!.returnXMLDocument()
-        let result: Result;
-        if (xmlDoc) {
-            result = drawioController!.parseDifferentDfdElementsFromXml(xmlDoc);
-            console.log(result)
-        } else {
-            alert("No diagram found")
-        }
+        let result: Result | null = drawioController!.parseXml();
+        console.log("Result: ");
+        console.log(result);
     }
 
     return (
