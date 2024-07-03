@@ -4,7 +4,13 @@ import CORSCommunicator from '../DrawIO/CORSCommunicator';
 import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 import '../styles/Model.css';
-import {IDFDElement} from "../interfaces/IDFDElement";
+
+import {
+    IDataFlow, IDataStore, IInteractor,
+    IMultiProcess, IProcess, ITrustBoundary,
+    Result
+} from "../interfaces/IDrawioInterfaces";
+
 
 
 function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void }) {
@@ -31,13 +37,20 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
 
     function handleClickEvent() {
         const xmlDoc : XMLDocument | null = drawioController!.returnXMLDocument()
-        let DFDArray : Array<IDFDElement> = []
+        let result: Result  = {
+            processesArray: [],
+            multiProcessesArray: [],
+            dataStoresArray: [],
+            dataFlowsArray: [],
+            interactorsArray: [],
+            trustBoundariesArray: []
+        }
         if (xmlDoc) {
-            DFDArray = drawioController!.returnArrayOfDfdElements(xmlDoc)
+            result = drawioController!.parseDifferentDfdElementsFromXml(xmlDoc);
         } else {
             alert("No diagram found")
         }
-        console.log(DFDArray)
+        console.log(result)
     }
 
     return (

@@ -3,11 +3,24 @@ import coretm from "./libs/CoReTM.json";
 import CORSCommunicator from "./CORSCommunicator";
 import LocalStorageModel from "./LocalStorageModel";
 
-import {IDFDElement} from "../interfaces/IDFDElement";
+import {
+    IDataFlow, IDataStore, IInteractor,
+    IMultiProcess, IProcess, ITrustBoundary,
+    Result
+} from "../interfaces/IDrawioInterfaces";
+
 
 export default class DrawioController {
     private drawio: CORSCommunicator;
     private storage: LocalStorageModel;
+    private diagramElements: Result = {
+        dataFlowsArray: new Array<IDataFlow>(),
+        dataStoresArray: new Array<IDataStore>(),
+        interactorsArray: new Array<IInteractor>(),
+        multiProcessesArray: new Array<IMultiProcess>(),
+        processesArray: new Array<IProcess>(),
+        trustBoundariesArray: new Array<ITrustBoundary>()
+    }
 
     constructor(drawio: any, storage: any) {
         this.drawio = drawio
@@ -195,89 +208,132 @@ export default class DrawioController {
         return null;
     }
 
-    returnArrayOfDfdElements(xmlDoc : XMLDocument) : Array<IDFDElement> {
+    checkIfElementAlreadyExists(elementToAdd: any, array: Array<any>) {
+        if (!array.some(e => e.id === elementToAdd.id)) {
+            array.push(elementToAdd);
+        }
+    }
 
+    parseDifferentDfdElementsFromXml(xmlDoc : XMLDocument) : Result {
         const diagram : Element = xmlDoc.getElementsByTagName('diagram')[0]
         const mxCells : HTMLCollectionOf<Element> = xmlDoc!.getElementsByTagName("mxCell");
 
         // TODO - Remove this
-        const mxCellsArray: Element[] = Array.from(mxCells);
-        mxCellsArray.forEach((cell : Element, index : number) => {
-            console.log(`Cell ${index}:`, cell);
-        });
+        // const mxCellsArray: Element[] = Array.from(mxCells);
+        // mxCellsArray.forEach((cell : Element, index : number) => {
+        //     console.log(`Cell ${index}:`, cell);
+        // });
 
-        const dfdElementsArray : IDFDElement[] = Array.from(mxCells).map(cell => {
+
+        Array.from(mxCells).forEach(cell => {
             const geometryElement : Element = cell.getElementsByTagName("mxGeometry")[0];
-            let sourcePoint = null;
-            let targetPoint = null;
-            let points: Array<{ x: string; y: string }> = [];
+            let elementToAdd : any;
 
-            if (geometryElement) {
-                if (cell.getAttribute("edge") === "1") {
-                    const sourcePointElement : Element | undefined = Array.from(geometryElement.getElementsByTagName("mxPoint")).find(pt => pt.getAttribute("as") === "sourcePoint");
-                    const targetPointElement : Element | undefined = Array.from(geometryElement.getElementsByTagName("mxPoint")).find(pt => pt.getAttribute("as") === "targetPoint");
+            switch (cell.getAttribute("type")) {
 
-                    if (sourcePointElement) {
-                        sourcePoint = {
-                            x: sourcePointElement.getAttribute("x")!,
-                            y: sourcePointElement.getAttribute("y")!
-                        };
+                case "Process":
+                    elementToAdd = {
+                        id: parseInt(cell.getAttribute("id")!),
+                        name: cell.getAttribute("value")!,
+                        x1: parseInt(geometryElement.getAttribute("x")!),
+                        x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!),
+                        y1: parseInt(geometryElement.getAttribute("y")!),
+                        y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!),
+                        type: cell.getAttribute("type")!,
+                        inTrustBoundary: []
                     }
+                    this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.processesArray);
+                    break;
 
-                    if (targetPointElement) {
-                        targetPoint = {
-                            x: targetPointElement.getAttribute("x")!,
-                            y: targetPointElement.getAttribute("y")!
-                        };
+                case "Multiprocess":
+                    elementToAdd = {
+                        id: parseInt(cell.getAttribute("id")!),
+                        name: cell.getAttribute("value")!,
+                        x1: parseInt(geometryElement.getAttribute("x")!),
+                        x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!),
+                        y1: parseInt(geometryElement.getAttribute("y")!),
+                        y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!),
+                        type: cell.getAttribute("type")!,
+                        inTrustBoundary: []
                     }
+                    this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.multiProcessesArray);
+                    break;
 
-                    const pointsArray : Element = geometryElement.getElementsByTagName("Array")[0];
-                    if (pointsArray) {
-                        points = Array.from(pointsArray.getElementsByTagName("mxPoint")).map(pt => ({
-                            x: pt.getAttribute("x") || "0",
-                            y: pt.getAttribute("y") || "0"
-                        }));
+                case "Datastore":
+                    elementToAdd = {
+                        id: parseInt(cell.getAttribute("id")!),
+                        name: cell.getAttribute("value")!,
+                        x1: parseInt(geometryElement.getAttribute("x")!),
+                        x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!),
+                        y1: parseInt(geometryElement.getAttribute("y")!),
+                        y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!),
+                        type: cell.getAttribute("type")!,
+                        inTrustBoundary: []
                     }
-                }
-                // Only for vertex elements
-                if (cell.getAttribute("vertex") === "1") {
-                    // If x or y is missing (happens when an element is placed exactly at the corner of the canvas) then add it
-                    if (geometryElement.getAttribute("x") && !geometryElement.getAttribute("y")) {
-                        geometryElement.setAttribute("y", "0");
-                    }
-                    else if (geometryElement.getAttribute("y") && !geometryElement.getAttribute("x")) {
-                        geometryElement.setAttribute("x", "0");
-                    }
-                    else if (!geometryElement.getAttribute("x") && !geometryElement.getAttribute("y")){
-                        geometryElement.setAttribute("x", "0");
-                        geometryElement.setAttribute("y", "0");
-                    }
+                    this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.dataStoresArray);
+                    break;
 
-                }
+                case "Dataflow":
+                    elementToAdd = {
+                        id: parseInt(cell.getAttribute("id")!),
+                        name: cell.getAttribute("value")!,
+                        sourceId: parseInt(cell.getAttribute("source")!),
+                        targetId: parseInt(cell.getAttribute("target")!)
+                    }
+                    if (!elementToAdd.sourceId || !elementToAdd.targetId) {
+                        alert(`The data flow "${elementToAdd.name}" is missing source or target. Please fix it and try again.`)
+                        break;
+                    }
+                    this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.dataFlowsArray);
+                    break;
+
+                case "Interactor":
+                    elementToAdd = {
+                        id: parseInt(cell.getAttribute("id")!),
+                        name: cell.getAttribute("value")!,
+                        x1: parseInt(geometryElement.getAttribute("x")!),
+                        x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!),
+                        y1: parseInt(geometryElement.getAttribute("y")!),
+                        y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!),
+                        type: cell.getAttribute("type")!,
+                        inTrustBoundary: []
+                    }
+                    this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.interactorsArray);
+                    break;
+
+                case "TrustBoundary":
+                    elementToAdd = {
+                        id: parseInt(cell.getAttribute("id")!),
+                        name: cell.getAttribute("value")!,
+                        x1: parseInt(geometryElement.getAttribute("x")!),
+                        x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!),
+                        y1: parseInt(geometryElement.getAttribute("y")!),
+                        y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!),
+                        type: cell.getAttribute("type")!
+                    }
+                    this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.trustBoundariesArray);
+                    break;
+
+                default:
+                    if (cell.getAttribute("edge") === "1") {
+                        alert("You have used a built-in edge element, instead of the dataflow element. " +
+                            "For further processing, it is important that only the predefined dataflow element is used. " +
+                            "Please fix it and try again.");
+                        break;
+                    }
+                    console.error("Cell type is not recognized");
+                    break;
             }
-            return {
-                id: cell.getAttribute("id")!,
-                value: cell.getAttribute("value"),
-                type: cell.getAttribute("type"),
-                style: cell.getAttribute("style"),
-                edge: cell.getAttribute("edge"),
-                vertex: cell.getAttribute("vertex"),
-                parent: cell.getAttribute("parent"),
-                source: cell.getAttribute("source"),
-                target: cell.getAttribute("target"),
-                geometry: geometryElement ? {
-                    width: geometryElement.getAttribute("width"),
-                    height: geometryElement.getAttribute("height"),
-                    x: geometryElement.getAttribute("x"),
-                    y: geometryElement.getAttribute("y"),
-                    sourcepoint: sourcePoint,
-                    targetpoint: targetPoint,
-                    points: points
-                } : null
-            };
         });
-        console.log(dfdElementsArray);
-        return dfdElementsArray
+        console.log("Processes: ", this.diagramElements.processesArray);
+        console.log("MultiProcesses: ", this.diagramElements.multiProcessesArray);
+        console.log("DataStores: ", this.diagramElements.dataStoresArray);
+        console.log("DataFlows: ", this.diagramElements.dataFlowsArray);
+        console.log("Interactors: ", this.diagramElements.interactorsArray);
+        console.log("TrustBoundaries: ", this.diagramElements.trustBoundariesArray);
+
+        return this.diagramElements;
     }
+
 }
 
