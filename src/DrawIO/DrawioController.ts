@@ -189,7 +189,7 @@ export default class DrawioController {
             try
             {
                 const xmlDoc : XMLDocument = parser.parseFromString(xml, "text/xml");
-                const result: Result = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
+                const result: IResult = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
                 return result;
 
             }
