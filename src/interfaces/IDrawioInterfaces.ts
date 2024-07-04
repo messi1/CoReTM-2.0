@@ -2,13 +2,13 @@ interface IElement {
     id: number
     name: string
     type: string
-    x1: number
-    x2: number
-    y1: number
-    y2: number
+    x1y1: Array<number>
+    x2y1: Array<number>
+    x1y2: Array<number>
+    x2y2: Array<number>
 }
 
-export interface IDataFlow{
+interface IDataFlow{
     id: number
     name: string
     type: string
@@ -16,23 +16,23 @@ export interface IDataFlow{
     targetId: number
 }
 
-export interface IProcess extends IElement {
+interface IProcess extends IElement {
     inTrustBoundary: Array<number>
 }
 
-export interface IMultiProcess extends IElement {
+interface IMultiProcess extends IElement {
     inTrustBoundary: Array<number>
 }
 
-export interface IDataStore extends IElement {
+interface IDataStore extends IElement {
     inTrustBoundary: Array<number>
 }
 
-export interface IInteractor extends IElement {
+interface IInteractor extends IElement {
     inTrustBoundary: Array<number>
 }
 
-export interface ITrustBoundary extends IElement {
+interface ITrustBoundary extends IElement {
 }
 
 export interface Result {

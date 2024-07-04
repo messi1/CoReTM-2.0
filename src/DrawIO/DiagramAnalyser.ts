@@ -23,10 +23,10 @@ export default class DiagramAnalyser {
         }
         const baseDfdElement = {
             ...baseElement,
-            x1: parseInt(geometryElement.getAttribute("x")!),
-            x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!),
-            y1: parseInt(geometryElement.getAttribute("y")!),
-            y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!),
+            x1y1: [parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("y")!)],
+            x2y1: [parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("y")!)],
+            x1y2: [parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!)],
+            x2y2: [parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!)],
             inTrustBoundary: []
         }
 
@@ -132,6 +132,15 @@ export default class DiagramAnalyser {
         }
     }
 
+    // private calculateIfElementIsInTrustBoundary(element: any) : void {
+    //     this.diagramElements.trustBoundariesArray.forEach(trustBoundary => {
+    //        if (element.x1 >= trustBoundary.x1 && element.x2 <= trustBoundary.x2 && element.y1 >= trustBoundary.y1 && element.y2 <= trustBoundary.y2) {
+    //            element.inTrustBoundary.push(trustBoundary.id);
+    //        }
+    //     });
+    //
+    // }
+
 
     parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): Result {
         const mxCells = xmlDoc.getElementsByTagName("mxCell");
@@ -154,6 +163,23 @@ export default class DiagramAnalyser {
                 this.navigateElementToCorrectArray(elementToAdd, type);
             }
         });
+
+        // this.diagramElements.dataStoresArray.forEach(element => {
+        //     this.calculateIfElementIsInTrustBoundary(element);
+        // })
+        // this.diagramElements.processesArray.forEach(element => {
+        //     this.calculateIfElementIsInTrustBoundary(element);
+        // })
+        // this.diagramElements.multiProcessesArray.forEach(element => {
+        //     this.calculateIfElementIsInTrustBoundary(element);
+        // })
+        // this.diagramElements.interactorsArray.forEach(element => {
+        //     this.calculateIfElementIsInTrustBoundary(element);
+        // })
+
+
+
+
         return this.diagramElements;
     }
 }
