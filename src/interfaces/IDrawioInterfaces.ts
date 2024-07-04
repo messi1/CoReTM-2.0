@@ -2,13 +2,13 @@ interface IElement {
     id: number
     name: string
     type: string
-    x1y1: Array<number>
-    x2y1: Array<number>
-    x1y2: Array<number>
-    x2y2: Array<number>
+    x1y1: { x1: number, y1: number }
+    x2y1: { x2: number, y1: number }
+    x1y2: { x1: number, y2: number }
+    x2y2: { x2: number, y2: number }
 }
 
-interface IDataFlow{
+export interface IDataFlow{
     id: number
     name: string
     type: string
@@ -16,30 +16,30 @@ interface IDataFlow{
     targetId: number
 }
 
-interface IProcess extends IElement {
+export interface IProcess extends IElement {
     inTrustBoundary: Array<number>
 }
 
-interface IMultiProcess extends IElement {
+export interface IMultiProcess extends IElement {
     inTrustBoundary: Array<number>
 }
 
-interface IDataStore extends IElement {
+export interface IDataStore extends IElement {
     inTrustBoundary: Array<number>
 }
 
-interface IInteractor extends IElement {
+export interface IInteractor extends IElement {
     inTrustBoundary: Array<number>
 }
 
-interface ITrustBoundary extends IElement {
+export interface ITrustBoundary extends IElement {
 }
 
-export interface Result {
-    processesArray: Array<IProcess>;
-    multiProcessesArray: Array<IMultiProcess>;
-    dataStoresArray: Array<IDataStore>;
-    dataFlowsArray: Array<IDataFlow>;
-    interactorsArray: Array<IInteractor>;
-    trustBoundariesArray: Array<ITrustBoundary>;
+export interface IResult {
+    dataFlowsArray: Array<IDataFlow>,
+    dataStoresArray: Array<IDataStore>,
+    interactorsArray: Array<IInteractor>,
+    multiProcessesArray: Array<IMultiProcess>,
+    processesArray: Array<IProcess>,
+    trustBoundariesArray: Array<ITrustBoundary>
 }

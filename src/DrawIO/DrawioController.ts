@@ -4,7 +4,7 @@ import CORSCommunicator from "./CORSCommunicator";
 import LocalStorageModel from "./LocalStorageModel";
 import DiagramAnalyser from "./DiagramAnalyser";
 
-import { Result } from "../interfaces/IDrawioInterfaces";
+import { IResult } from "../interfaces/IDrawioInterfaces";
 
 
 export default class DrawioController {
@@ -179,7 +179,7 @@ export default class DrawioController {
         console.log('To be implemented')
     }
 
-    parseXml() : Result | null {
+    parseXml() : IResult | null {
         const xmlDataString : string | null = this.storage.read('DrawioMsg');
         const parsed = JSON.parse(xmlDataString!);
         const xml = parsed.xml;

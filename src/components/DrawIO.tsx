@@ -5,7 +5,7 @@ import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 import '../styles/Model.css';
 
-import { Result } from "../interfaces/IDrawioInterfaces";
+import { IResult } from "../interfaces/IDrawioInterfaces";
 
 
 
@@ -32,7 +32,7 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     }, [sendDiagram]);
 
     function handleClickEvent() {
-        let result: Result | null = drawioController!.parseXml();
+        let result: IResult | null = drawioController!.parseXml();
         console.log("Result: ");
         console.log(result);
     }
