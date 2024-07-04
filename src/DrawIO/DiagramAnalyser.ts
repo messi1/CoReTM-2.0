@@ -1,16 +1,31 @@
-import { Result } from "../interfaces/IDrawioInterfaces";
+import {
+    IDataFlow,
+    IDataStore,
+    IInteractor,
+    IMultiProcess,
+    IProcess, IResult,
+    ITrustBoundary
+} from "../interfaces/IDrawioInterfaces";
+
+
+/*
+* TODO
+*    -refactor checkIfValuesAreEqual
+*    -deleteElementsNotInDiagram
+*    -checkIfSourceAndTargetExist
+ */
 
 export default class DiagramAnalyser {
-    private readonly diagramElements: Result;
+    private diagramElements: IResult;
 
     constructor() {
         this.diagramElements = {
-            dataFlowsArray: [],
-            dataStoresArray: [],
-            interactorsArray: [],
-            multiProcessesArray: [],
-            processesArray: [],
-            trustBoundariesArray: []
+            dataFlowsArray: new Array<IDataFlow>(),
+            dataStoresArray: new Array<IDataStore>(),
+            interactorsArray: new Array<IInteractor>(),
+            multiProcessesArray: new Array<IMultiProcess>(),
+            processesArray: new Array<IProcess>(),
+            trustBoundariesArray: new Array<ITrustBoundary>()
         };
     }
 
@@ -21,12 +36,15 @@ export default class DiagramAnalyser {
             name: cell.getAttribute("value")!
 
         }
-        const baseDfdElement = {
+        const trustBoundaryElement = {
             ...baseElement,
-            x1y1: [parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("y")!)],
-            x2y1: [parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("y")!)],
-            x1y2: [parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!)],
-            x2y2: [parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!), parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!)],
+            x1y1: {x1: parseInt(geometryElement.getAttribute("x")!), y1: parseInt(geometryElement.getAttribute("y")!)},
+            x2y1: {x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!), y1: parseInt(geometryElement.getAttribute("y")!)},
+            x1y2: {x1: parseInt(geometryElement.getAttribute("x")!), y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!)},
+            x2y2: {x2: parseInt(geometryElement.getAttribute("width")!) + parseInt(geometryElement.getAttribute("x")!), y2: parseInt(geometryElement.getAttribute("height")!) + parseInt(geometryElement.getAttribute("y")!)}
+        }
+        const baseDfdElement = {
+            ...trustBoundaryElement,
             inTrustBoundary: []
         }
 
@@ -37,8 +55,14 @@ export default class DiagramAnalyser {
                     sourceId: parseInt(cell.getAttribute("source")!),
                     targetId: parseInt(cell.getAttribute("target")!)
                 }
+            case "TrustBoundary":
+                return {
+                    ...trustBoundaryElement
+                }
             default:
-                return baseDfdElement
+                return {
+                    ...baseDfdElement
+                }
         }
     }
     private checkIfValuesAreEqual(elementAlreadyExists: any, elementToAdd: any, array: any[]): void {
@@ -47,21 +71,21 @@ export default class DiagramAnalyser {
             console.error(`Name of element with id ${elementToAdd.id} is not the same`);
         }
         if (elementToAdd.type !== "Dataflow") {
-            if (elementAlreadyExists.x1 !== elementToAdd.x1) {
-                array.find((element: any) => element.id === elementToAdd.id).x1 = elementToAdd.x1;
-                console.error(`X1 of element with id ${elementToAdd.id} is not the same`);
+            if (elementAlreadyExists.x1y1 !== elementToAdd.x1y1) {
+                array.find((element: any) => element.id === elementToAdd.id).x1y1 = elementToAdd.x1y1;
+                console.error(`X1Y1 of element with id ${elementToAdd.id} is not the same`);
             }
-            if (elementAlreadyExists.x2 !== elementToAdd.x2) {
-                array.find((element: any) => element.id === elementToAdd.id).x2 = elementToAdd.x2;
-                console.error(`X2 of element with id ${elementToAdd.id} is not the same`);
+            if (elementAlreadyExists.x2y1 !== elementToAdd.x2y1) {
+                array.find((element: any) => element.id === elementToAdd.id).x2y1 = elementToAdd.x2y1;
+                console.error(`X2Y1 of element with id ${elementToAdd.id} is not the same`);
             }
-            if (elementAlreadyExists.y1 !== elementToAdd.y1) {
-                array.find((element: any) => element.id === elementToAdd.id).y1 = elementToAdd.y1;
-                console.error(`Y1 of element with id ${elementToAdd.id} is not the same`);
+            if (elementAlreadyExists.x1y2 !== elementToAdd.x1y2) {
+                array.find((element: any) => element.id === elementToAdd.id).x1y2 = elementToAdd.x1y2;
+                console.error(`X1Y2 of element with id ${elementToAdd.id} is not the same`);
             }
-            if (elementAlreadyExists.y2 !== elementToAdd.y2) {
-                array.find((element: any) => element.id === elementToAdd.id).y2 = elementToAdd.y2;
-                console.error(`Y2 of element with id ${elementToAdd.id} is not the same`);
+            if (elementAlreadyExists.x2y2 !== elementToAdd.x2y2) {
+                array.find((element: any) => element.id === elementToAdd.id).x2y2 = elementToAdd.x2y2;
+                console.error(`X2Y2 of element with id ${elementToAdd.id} is not the same`);
             }
             // TODO fix this
             // if (elementAlreadyExists.inTrustBoundary !== elementToAdd.inTrustBoundary) {
@@ -90,9 +114,6 @@ export default class DiagramAnalyser {
         }
     }
 
-    // TODO write function to delete elements that are not in the diagram anymore
-
-    // TODO use this function to determine if the source and target exist (only for dataflows)
     private checkIfSourceAndTargetExist(elementToAdd : any): boolean {
         console.log("Checking if source and target exist for: " + elementToAdd.id)
         if (isNaN(elementToAdd.sourceId)) {
@@ -132,17 +153,25 @@ export default class DiagramAnalyser {
         }
     }
 
-    // private calculateIfElementIsInTrustBoundary(element: any) : void {
-    //     this.diagramElements.trustBoundariesArray.forEach(trustBoundary => {
-    //        if (element.x1 >= trustBoundary.x1 && element.x2 <= trustBoundary.x2 && element.y1 >= trustBoundary.y1 && element.y2 <= trustBoundary.y2) {
-    //            element.inTrustBoundary.push(trustBoundary.id);
-    //        }
-    //     });
-    //
-    // }
+    private calculateIfElementInTrustBoundary(element: any, trustBoundary: any): boolean {
+        if (element.x1y1.x1 >= trustBoundary.x1y1.x1 && element.x1y1.y1 >= trustBoundary.x1y1.y1 && element.x2y1.x2 <= trustBoundary.x2y1.x2 && element.x2y1.y1 >= trustBoundary.x2y1.y1
+            && element.x2y2.x2 <= trustBoundary.x2y2.x2 && element.x2y2.y2 <= trustBoundary.x2y2.y2 && element.x1y2.x1 >= trustBoundary.x1y2.x1 && element.x1y2.y2 <= trustBoundary.x1y2.y2) {
+            console.log("Element is in trust boundary")
+            return true;
+        }
+        return false;
+    }
 
+    private addInTrustBoundaryAttributeToDfdElement(element: any) : void {
+        this.diagramElements.trustBoundariesArray.forEach(trustBoundary => {
+            if (this.calculateIfElementInTrustBoundary(element, trustBoundary)) {
+                element.inTrustBoundary.push(trustBoundary.id);
+            }
+        })
 
-    parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): Result {
+    }
+
+    parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): IResult  {
         const mxCells = xmlDoc.getElementsByTagName("mxCell");
 
         Array.from(mxCells).forEach(cell  => {
@@ -164,21 +193,18 @@ export default class DiagramAnalyser {
             }
         });
 
-        // this.diagramElements.dataStoresArray.forEach(element => {
-        //     this.calculateIfElementIsInTrustBoundary(element);
-        // })
-        // this.diagramElements.processesArray.forEach(element => {
-        //     this.calculateIfElementIsInTrustBoundary(element);
-        // })
-        // this.diagramElements.multiProcessesArray.forEach(element => {
-        //     this.calculateIfElementIsInTrustBoundary(element);
-        // })
-        // this.diagramElements.interactorsArray.forEach(element => {
-        //     this.calculateIfElementIsInTrustBoundary(element);
-        // })
-
-
-
+        this.diagramElements.dataStoresArray.forEach(element => {
+            this.addInTrustBoundaryAttributeToDfdElement(element);
+        })
+        this.diagramElements.processesArray.forEach(element => {
+            this.addInTrustBoundaryAttributeToDfdElement(element);
+        })
+        this.diagramElements.multiProcessesArray.forEach(element => {
+            this.addInTrustBoundaryAttributeToDfdElement(element);
+        })
+        this.diagramElements.interactorsArray.forEach(element => {
+            this.addInTrustBoundaryAttributeToDfdElement(element);
+        })
 
         return this.diagramElements;
     }
