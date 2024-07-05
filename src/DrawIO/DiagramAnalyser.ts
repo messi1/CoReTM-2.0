@@ -20,12 +20,12 @@ export default class DiagramAnalyser {
 
     constructor() {
         this.diagramElements = {
-            dataFlowsArray: new Array<IDataFlow>(),
-            dataStoresArray: new Array<IDataStore>(),
-            interactorsArray: new Array<IInteractor>(),
-            multiProcessesArray: new Array<IMultiProcess>(),
-            processesArray: new Array<IProcess>(),
-            trustBoundariesArray: new Array<ITrustBoundary>()
+            dataFlowsArray: Array<IDataFlow>(),
+            dataStoresArray: Array<IDataStore>(),
+            interactorsArray: Array<IInteractor>(),
+            multiProcessesArray: Array<IMultiProcess>(),
+            processesArray: Array<IProcess>(),
+            trustBoundariesArray: Array<ITrustBoundary>()
         };
     }
 
@@ -65,54 +65,6 @@ export default class DiagramAnalyser {
                 }
         }
     }
-    private checkIfValuesAreEqual(elementAlreadyExists: any, elementToAdd: any, array: any[]): void {
-        if (elementAlreadyExists.name !== elementToAdd.name) {
-            array.find((element: any) => element.id === elementToAdd.id).name = elementToAdd.name;
-            console.error(`Name of element with id ${elementToAdd.id} is not the same`);
-        }
-        if (elementToAdd.type !== "Dataflow") {
-            if (elementAlreadyExists.x1y1 !== elementToAdd.x1y1) {
-                array.find((element: any) => element.id === elementToAdd.id).x1y1 = elementToAdd.x1y1;
-                console.error(`X1Y1 of element with id ${elementToAdd.id} is not the same`);
-            }
-            if (elementAlreadyExists.x2y1 !== elementToAdd.x2y1) {
-                array.find((element: any) => element.id === elementToAdd.id).x2y1 = elementToAdd.x2y1;
-                console.error(`X2Y1 of element with id ${elementToAdd.id} is not the same`);
-            }
-            if (elementAlreadyExists.x1y2 !== elementToAdd.x1y2) {
-                array.find((element: any) => element.id === elementToAdd.id).x1y2 = elementToAdd.x1y2;
-                console.error(`X1Y2 of element with id ${elementToAdd.id} is not the same`);
-            }
-            if (elementAlreadyExists.x2y2 !== elementToAdd.x2y2) {
-                array.find((element: any) => element.id === elementToAdd.id).x2y2 = elementToAdd.x2y2;
-                console.error(`X2Y2 of element with id ${elementToAdd.id} is not the same`);
-            }
-            // TODO fix this
-            // if (elementAlreadyExists.inTrustBoundary !== elementToAdd.inTrustBoundary) {
-            //     array.find((element: any) => element.id === elementToAdd.id).inTrustBoundary = elementToAdd.inTrustBoundary;
-            //     console.error(`Trust boundary of element with id ${elementToAdd.id} is not the same`);
-            // }
-        } else {
-            if (elementAlreadyExists.sourceId !== elementToAdd.sourceId) {
-                array.find((element: any) => element.id === elementToAdd.id).sourceId = elementToAdd.sourceId;
-                console.error(`SourceId of element with id ${elementToAdd.id} is not the same`);
-            }
-            if (elementAlreadyExists.targetId !== elementToAdd.targetId) {
-                array.find((element: any) => element.id === elementToAdd.id).targetId = elementToAdd.targetId;
-                console.error(`TargetId of element with id ${elementToAdd.id} is not the same`);
-            }
-        }
-    }
-
-    private checkIfElementAlreadyExists(elementToAdd: any, array: any[]): void {
-
-        const elementAlreadyExists = array.find((element: any) => element.id === elementToAdd.id);
-        if (elementAlreadyExists) {
-            this.checkIfValuesAreEqual(elementAlreadyExists, elementToAdd, array);
-        } else {
-            array.push(elementToAdd);
-        }
-    }
 
     private checkIfSourceAndTargetExist(elementToAdd : any): boolean {
         console.log("Checking if source and target exist for: " + elementToAdd.id)
@@ -130,22 +82,26 @@ export default class DiagramAnalyser {
     private navigateElementToCorrectArray(elementToAdd: any, type: string) {
         switch (type) {
             case "Process":
-                this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.processesArray);
+                this.diagramElements.processesArray.push(elementToAdd);
                 break;
             case "Multiprocess":
-                this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.multiProcessesArray);
+                this.diagramElements.multiProcessesArray.push(elementToAdd);
                 break;
             case "Datastore":
-                this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.dataStoresArray);
+                this.diagramElements.dataStoresArray.push(elementToAdd);
                 break;
             case "Dataflow":
-                this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.dataFlowsArray);
+                if (!this.checkIfSourceAndTargetExist(elementToAdd)) {
+                    console.error("Source or target is missing for dataflow: " + elementToAdd.name);
+                    return;
+                }
+                this.diagramElements.dataFlowsArray.push(elementToAdd);
                 break;
             case "Interactor":
-                this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.interactorsArray);
+                this.diagramElements.interactorsArray.push(elementToAdd);
                 break;
             case "TrustBoundary":
-                this.checkIfElementAlreadyExists(elementToAdd, this.diagramElements.trustBoundariesArray);
+                this.diagramElements.trustBoundariesArray.push(elementToAdd);
                 break;
             default:
                 console.error("Cell type is not recognized");
@@ -173,6 +129,16 @@ export default class DiagramAnalyser {
 
     parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): IResult  {
         const mxCells = xmlDoc.getElementsByTagName("mxCell");
+
+        this.diagramElements = {
+            dataFlowsArray: new Array<IDataFlow>(),
+            dataStoresArray: new Array<IDataStore>(),
+            interactorsArray: new Array<IInteractor>(),
+            multiProcessesArray: new Array<IMultiProcess>(),
+            processesArray: new Array<IProcess>(),
+            trustBoundariesArray: new Array<ITrustBoundary>()
+        };
+
 
         Array.from(mxCells).forEach(cell  => {
             const type : string | null = cell.getAttribute("type");
