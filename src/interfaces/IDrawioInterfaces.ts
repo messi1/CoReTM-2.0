@@ -27,8 +27,16 @@ export interface IDataFlow{
     targetId: number
 }
 
-export interface IResult {
+export interface IDiagram {
     dataFlowsArray: Array<IDataFlow>,
     elementsArray: Array<IElement>,
     trustBoundariesArray: Array<ITrustBoundary>
+}
+
+export interface ICrossingElements {
+    dataflow: IDataFlow,
+    elements: {
+        sourceElement: IElement,
+        targetElement: IElement
+    }
 }
