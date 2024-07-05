@@ -1,10 +1,8 @@
 import {
     IDataFlow,
-    IDataStore,
-    IInteractor,
-    IMultiProcess,
-    IProcess, IResult,
-    ITrustBoundary
+    IResult,
+    ITrustBoundary,
+    IElement
 } from "../interfaces/IDrawioInterfaces";
 
 
@@ -21,10 +19,7 @@ export default class DiagramAnalyser {
     constructor() {
         this.diagramElements = {
             dataFlowsArray: Array<IDataFlow>(),
-            dataStoresArray: Array<IDataStore>(),
-            interactorsArray: Array<IInteractor>(),
-            multiProcessesArray: Array<IMultiProcess>(),
-            processesArray: Array<IProcess>(),
+            elementsArray: Array<IElement>(),
             trustBoundariesArray: Array<ITrustBoundary>()
         };
     }
@@ -80,32 +75,17 @@ export default class DiagramAnalyser {
     }
 
     private navigateElementToCorrectArray(elementToAdd: any, type: string) {
-        switch (type) {
-            case "Process":
-                this.diagramElements.processesArray.push(elementToAdd);
-                break;
-            case "Multiprocess":
-                this.diagramElements.multiProcessesArray.push(elementToAdd);
-                break;
-            case "Datastore":
-                this.diagramElements.dataStoresArray.push(elementToAdd);
-                break;
-            case "Dataflow":
-                if (!this.checkIfSourceAndTargetExist(elementToAdd)) {
-                    console.error("Source or target is missing for dataflow: " + elementToAdd.name);
-                    return;
-                }
-                this.diagramElements.dataFlowsArray.push(elementToAdd);
-                break;
-            case "Interactor":
-                this.diagramElements.interactorsArray.push(elementToAdd);
-                break;
-            case "TrustBoundary":
-                this.diagramElements.trustBoundariesArray.push(elementToAdd);
-                break;
-            default:
-                console.error("Cell type is not recognized");
-                break;
+
+        if (type === "Dataflow") {
+            if (!this.checkIfSourceAndTargetExist(elementToAdd)) {
+                console.error("Source or target is missing for dataflow: " + elementToAdd.name);
+                return;
+            }
+            this.diagramElements.dataFlowsArray.push(elementToAdd);
+        } else if (type === "TrustBoundary") {
+            this.diagramElements.trustBoundariesArray.push(elementToAdd);
+        } else {
+            this.diagramElements.elementsArray.push(elementToAdd);
         }
     }
 
@@ -132,10 +112,7 @@ export default class DiagramAnalyser {
 
         this.diagramElements = {
             dataFlowsArray: new Array<IDataFlow>(),
-            dataStoresArray: new Array<IDataStore>(),
-            interactorsArray: new Array<IInteractor>(),
-            multiProcessesArray: new Array<IMultiProcess>(),
-            processesArray: new Array<IProcess>(),
+            elementsArray: new Array<IElement>(),
             trustBoundariesArray: new Array<ITrustBoundary>()
         };
 
@@ -159,16 +136,7 @@ export default class DiagramAnalyser {
             }
         });
 
-        this.diagramElements.dataStoresArray.forEach(element => {
-            this.addInTrustBoundaryAttributeToDfdElement(element);
-        })
-        this.diagramElements.processesArray.forEach(element => {
-            this.addInTrustBoundaryAttributeToDfdElement(element);
-        })
-        this.diagramElements.multiProcessesArray.forEach(element => {
-            this.addInTrustBoundaryAttributeToDfdElement(element);
-        })
-        this.diagramElements.interactorsArray.forEach(element => {
+        this.diagramElements.elementsArray.forEach(element => {
             this.addInTrustBoundaryAttributeToDfdElement(element);
         })
 
