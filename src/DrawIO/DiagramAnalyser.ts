@@ -1,20 +1,13 @@
 import {
     IDataFlow,
-    IResult,
+    IDiagram,
     ITrustBoundary,
-    IElement
+    IElement, ICrossingElements
 } from "../interfaces/IDrawioInterfaces";
 
-
-/*
-* TODO
-*    -refactor checkIfValuesAreEqual
-*    -deleteElementsNotInDiagram
-*    -checkIfSourceAndTargetExist
- */
-
 export default class DiagramAnalyser {
-    private diagramElements: IResult;
+    private diagramElements: IDiagram;
+    private elementsCrossingTrustBoundaries: ICrossingElements[];
 
     constructor() {
         this.diagramElements = {
@@ -22,6 +15,7 @@ export default class DiagramAnalyser {
             elementsArray: Array<IElement>(),
             trustBoundariesArray: Array<ITrustBoundary>()
         };
+        this.elementsCrossingTrustBoundaries = Array<ICrossingElements>();
     }
 
     private createElementToAdd(cell: Element, geometryElement: Element, type: string) {
@@ -62,7 +56,6 @@ export default class DiagramAnalyser {
     }
 
     private checkIfSourceAndTargetExist(elementToAdd : any): boolean {
-        console.log("Checking if source and target exist for: " + elementToAdd.id)
         if (isNaN(elementToAdd.sourceId)) {
             console.error("SourceId is null");
             return false;
@@ -90,12 +83,9 @@ export default class DiagramAnalyser {
     }
 
     private calculateIfElementInTrustBoundary(element: any, trustBoundary: any): boolean {
-        if (element.x1y1.x1 >= trustBoundary.x1y1.x1 && element.x1y1.y1 >= trustBoundary.x1y1.y1 && element.x2y1.x2 <= trustBoundary.x2y1.x2 && element.x2y1.y1 >= trustBoundary.x2y1.y1
-            && element.x2y2.x2 <= trustBoundary.x2y2.x2 && element.x2y2.y2 <= trustBoundary.x2y2.y2 && element.x1y2.x1 >= trustBoundary.x1y2.x1 && element.x1y2.y2 <= trustBoundary.x1y2.y2) {
-            console.log("Element is in trust boundary")
-            return true;
-        }
-        return false;
+        return element.x1y1.x1 >= trustBoundary.x1y1.x1 && element.x1y1.y1 >= trustBoundary.x1y1.y1 && element.x2y1.x2 <= trustBoundary.x2y1.x2 && element.x2y1.y1 >= trustBoundary.x2y1.y1
+            && element.x2y2.x2 <= trustBoundary.x2y2.x2 && element.x2y2.y2 <= trustBoundary.x2y2.y2 && element.x1y2.x1 >= trustBoundary.x1y2.x1 && element.x1y2.y2 <= trustBoundary.x1y2.y2;
+
     }
 
     private addInTrustBoundaryAttributeToDfdElement(element: any) : void {
@@ -107,7 +97,32 @@ export default class DiagramAnalyser {
 
     }
 
-    parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): IResult  {
+    private findDataflowsCrossingTrustBoundary() {
+        this.diagramElements.dataFlowsArray.forEach(dataflow => {
+            const sourceElement = this.diagramElements.elementsArray.find(element => element.id === dataflow.sourceId);
+            const targetElement = this.diagramElements.elementsArray.find(element => element.id === dataflow.targetId);
+
+            if (!sourceElement || !targetElement) {
+                return;
+            }
+
+            const sourceTrustBoundaries = sourceElement.inTrustBoundary;
+            const targetTrustBoundaries = targetElement.inTrustBoundary;
+            const insideSameTrustBoundary = sourceTrustBoundaries.every((value) => targetTrustBoundaries.includes(value)) && targetTrustBoundaries.every((value) => sourceTrustBoundaries.includes(value))
+
+            if (!insideSameTrustBoundary) {
+                this.elementsCrossingTrustBoundaries.push({
+                    dataflow: dataflow,
+                    elements: {
+                        sourceElement: sourceElement,
+                        targetElement: targetElement
+                    }
+                })
+            }
+        });
+    }
+
+    parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): ICrossingElements[]  {
         const mxCells = xmlDoc.getElementsByTagName("mxCell");
 
         this.diagramElements = {
@@ -116,6 +131,7 @@ export default class DiagramAnalyser {
             trustBoundariesArray: new Array<ITrustBoundary>()
         };
 
+        this.elementsCrossingTrustBoundaries = new Array<ICrossingElements>();
 
         Array.from(mxCells).forEach(cell  => {
             const type : string | null = cell.getAttribute("type");
@@ -140,7 +156,12 @@ export default class DiagramAnalyser {
             this.addInTrustBoundaryAttributeToDfdElement(element);
         })
 
-        return this.diagramElements;
+        this.findDataflowsCrossingTrustBoundary();
+
+        console.log("Elements that are connected by a dataflow crossing a trust boundary: ")
+        console.log(this.elementsCrossingTrustBoundaries)
+
+        return this.elementsCrossingTrustBoundaries;
     }
 }
 

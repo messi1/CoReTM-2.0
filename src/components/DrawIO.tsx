@@ -5,7 +5,7 @@ import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 import '../styles/Model.css';
 
-import { IResult } from "../interfaces/IDrawioInterfaces";
+import { ICrossingElements } from "../interfaces/IDrawioInterfaces";
 
 
 
@@ -32,9 +32,7 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     }, [sendDiagram]);
 
     function handleClickEvent() {
-        let result: IResult | null = drawioController!.parseXml();
-        console.log("Result: ");
-        console.log(result);
+        let crossingElements: ICrossingElements[] | null = drawioController!.parseXml();
     }
 
     return (

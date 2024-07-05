@@ -4,7 +4,7 @@ import CORSCommunicator from "./CORSCommunicator";
 import LocalStorageModel from "./LocalStorageModel";
 import DiagramAnalyser from "./DiagramAnalyser";
 
-import { IResult } from "../interfaces/IDrawioInterfaces";
+import { ICrossingElements } from "../interfaces/IDrawioInterfaces";
 
 
 export default class DrawioController {
@@ -179,7 +179,7 @@ export default class DrawioController {
         console.log('To be implemented')
     }
 
-    parseXml() : IResult | null {
+    parseXml() : ICrossingElements[] | null {
         const xmlDataString : string | null = this.storage.read('DrawioMsg');
         const parsed = JSON.parse(xmlDataString!);
         const xml = parsed.xml;
@@ -189,8 +189,8 @@ export default class DrawioController {
             try
             {
                 const xmlDoc : XMLDocument = parser.parseFromString(xml, "text/xml");
-                const result: IResult = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
-                return result;
+                const crossingElements: ICrossingElements[] = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
+                return crossingElements;
 
             }
             catch (e) {
