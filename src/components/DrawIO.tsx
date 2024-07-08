@@ -45,14 +45,14 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
             <iframe
                 ref={iframeRef}
                 width="100%"
-                height="600" // Adjust height as needed
+                height="700"
                 src="https://embed.diagrams.net/?embed=1&ui=dark&spin=1&proto=json&configure=1&noExitBtn=1&saveAndExit=0&noSaveBtn=1&noExitBtn=1"
                 style={{ border: 'none' }}
                 title="draw.io"
             />
             {!showOverviewTable &&
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-                    <Button variant="contained" color="primary" onClick={handleClickEvent}>Next</Button>
+                    <Button variant="contained" color="primary" onClick={handleClickEvent}>Analyse</Button>
                 </Box>
             }
             {showOverviewTable &&
