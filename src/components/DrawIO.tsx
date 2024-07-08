@@ -51,7 +51,7 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
                 title="draw.io"
             />
             {!showOverviewTable &&
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
                     <Button variant="contained" color="primary" onClick={handleClickEvent}>Analyse</Button>
                 </Box>
             }
