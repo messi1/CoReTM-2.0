@@ -189,9 +189,7 @@ export default class DrawioController {
             try
             {
                 const xmlDoc : XMLDocument = parser.parseFromString(xml, "text/xml");
-                const crossingElements: ICrossingElements[] = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
-                return crossingElements;
-
+                return this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
             }
             catch (e) {
                 console.log(e);
