@@ -6,7 +6,7 @@ import DrawioController from "../DrawIO/DrawioController";
 
 import { ICrossingElements } from "../interfaces/DrawioInterfaces";
 
-import {Box, Button, Checkbox} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import OverviewTable from './OverviewTable';
 
 

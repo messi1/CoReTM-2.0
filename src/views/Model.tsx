@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import DrawIO from "../components/DrawIO";
 import {ClimbingBoxLoader} from "react-spinners";
 import Container from "@mui/material/Container";
