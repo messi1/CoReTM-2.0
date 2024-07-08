@@ -3,7 +3,7 @@ import {
     IDiagram,
     ITrustBoundary,
     IElement, ICrossingElements
-} from "../interfaces/IDrawioInterfaces";
+} from "../interfaces/DrawioInterfaces";
 
 export default class DiagramAnalyser {
     private diagramElements: IDiagram;

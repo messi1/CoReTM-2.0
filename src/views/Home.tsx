@@ -1,33 +1,31 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
-import '../styles/Home.css';
+
+import {Button, Stack, Typography} from "@mui/material";
+import Container from "@mui/material/Container";
 
 function Home() {
 
     return (
-        <div className="Home">
-            <header className="Home-header">
-                <h1>CoReTM 2.0</h1>
-                <p>Threat modeling with STRIDE-per-Interaction</p>
-            </header>
-            <div className={"Home-link"}>
-                <Link to={"/login"}>
-                    <button className={"Home-button"} id={"Home-button-1"} name={"login"}>
-                        Login
-                    </button>
+        <Container>
+            <Typography variant="h2" component="h1" gutterBottom>
+                CoReTM 2.0
+            </Typography>
+            <Typography variant="subtitle1">
+                Threat modeling with STRIDE-per-Interaction
+            </Typography>
+            <Stack direction="column" spacing={2} className={"Home-link"}>
+                <Link to={"/login"} style={{ textDecoration: 'none' }}>
+                    <Button variant="outlined">Login</Button>
                 </Link>
-                <Link to="/signup">
-                    <button className={"Home-button"} id={"Home-button-2"} name={"signup"}>
-                        Sign Up
-                    </button>
+                <Link to="/signup" style={{ textDecoration: 'none' }}>
+                    <Button variant="outlined">Sign Up</Button>
                 </Link>
-                <Link to={"/model"}>
-                    <button className={"Home-button"} id={"Home-button-3"} name={"login"}>
-                        Continue without login
-                    </button>
+                <Link to={"/model"} style={{ textDecoration: 'none' }}>
+                    <Button variant="outlined">Continue without Login</Button>
                 </Link>
-            </div>
-        </div>
+            </Stack>
+        </Container>
     );
 }
 

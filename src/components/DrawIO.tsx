@@ -3,9 +3,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import CORSCommunicator from '../DrawIO/CORSCommunicator';
 import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
-import '../styles/Model.css';
 
-import { ICrossingElements } from "../interfaces/IDrawioInterfaces";
+import { ICrossingElements } from "../interfaces/DrawioInterfaces";
+
+import {Box, Button, Checkbox} from "@mui/material";
+import OverviewTable from './OverviewTable';
 
 
 
@@ -13,6 +15,8 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     let iframeRef = useRef<HTMLIFrameElement>(null);
     let [initialized, setInitialized] = useState(false);
     let [drawioController, setDrawioController] = useState<DrawioController | null>(null);
+    let [crossingElements, setCrossingElements] = useState<ICrossingElements[] >([]);
+    let [showOverviewTable, setShowOverviewTable] = useState(false);
 
     useEffect(() => {
         if (!initialized) {
@@ -32,21 +36,31 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     }, [sendDiagram]);
 
     function handleClickEvent() {
-        let crossingElements: ICrossingElements[] | null = drawioController!.parseXml();
+        setCrossingElements(drawioController!.parseXml());
+        setShowOverviewTable(true);
     }
 
     return (
-        <div className={"Model"}>
+        <Box sx={{ width: '100%', height: '100%' }}>
             <iframe
                 ref={iframeRef}
                 width="100%"
-                height="100%"
+                height="600" // Adjust height as needed
                 src="https://embed.diagrams.net/?embed=1&ui=dark&spin=1&proto=json&configure=1&noExitBtn=1&saveAndExit=0&noSaveBtn=1&noExitBtn=1"
-                style={{border: 'none'}}
-                title={'draw.io'}
+                style={{ border: 'none' }}
+                title="draw.io"
             />
-            <button className={"nextButton"} onClick={handleClickEvent}>Next</button>
-        </div>
+            {!showOverviewTable &&
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleClickEvent}>Next</Button>
+                </Box>
+            }
+            {showOverviewTable &&
+                <Box>
+                    <OverviewTable crossingElements={crossingElements} />
+                </Box>
+            }
+        </Box>
     );
 }
 
