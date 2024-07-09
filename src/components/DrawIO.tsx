@@ -8,24 +8,32 @@ import { ICrossingElements } from "../interfaces/DrawioInterfaces";
 
 import {Box, Button} from "@mui/material";
 import OverviewTable from './OverviewTable';
-
+import TablesController from "../DrawIO/TablesController";
+import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableInterfaces";
+import ThreatTables from "./ThreatTables";
 
 
 function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void }) {
     let iframeRef = useRef<HTMLIFrameElement>(null);
     let [initialized, setInitialized] = useState(false);
+
     let [drawioController, setDrawioController] = useState<DrawioController | null>(null);
+    let [tablesController, setTablesController] = useState<TablesController | null>(null);
     let [crossingElements, setCrossingElements] = useState<ICrossingElements[] >([]);
+
+    let [showDrawio, setShowDrawio] = useState(true);
     let [showOverviewTable, setShowOverviewTable] = useState(false);
+    let [showThreatTable, setShowThreatTable] = useState(false);
 
     useEffect(() => {
         if (!initialized) {
             const localStorageModel = new LocalStorageModel();
-
             setInitialized(true);
 
             const drawioView = new CORSCommunicator(iframeRef.current);
             const stateController = new DrawioController(drawioView, localStorageModel);
+            const tablesController = new TablesController(localStorageModel);
+            setTablesController(tablesController);
             setDrawioController(stateController)
 
             localStorageModel.observe(function(diagram: string) {
@@ -35,9 +43,22 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
         }
     }, [sendDiagram]);
 
-    function handleClickEvent() {
+    function handleClickAnalyseEvent() {
         setCrossingElements(drawioController!.parseXml());
         setShowOverviewTable(true);
+    }
+
+    function handleClickNextEvent() {
+        setShowDrawio(false);
+        setShowThreatTable(true);
+    }
+    function handleSaveOverviewTable(data: IOverviewTableRow[]){
+        const threatTables: IThreatTableRow[][] = tablesController!.parseOverviewTable(data);
+        setShowThreatTable(true);
+    }
+
+    function handleSaveThreatTable(data: IThreatTableRow[][]){
+        tablesController!.setThreatTables(data);
     }
 
     return (
@@ -52,12 +73,20 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
             />
             {!showOverviewTable &&
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
-                    <Button variant="contained" color="primary" onClick={handleClickEvent}>Analyse</Button>
+                    <Button variant="contained" color="primary" onClick={handleClickAnalyseEvent}>Analyse</Button>
                 </Box>
             }
             {showOverviewTable &&
+                    <Box>
+                        <OverviewTable
+                            crossingElements={crossingElements}
+                            onSave={handleSaveOverviewTable}
+                        />
+                    </Box>
+            }
+            {showThreatTable &&
                 <Box>
-                    <OverviewTable crossingElements={crossingElements} />
+                   <ThreatTables threatTables={tablesController!.getThreatTables()} onSave={handleSaveThreatTable}/>
                 </Box>
             }
         </Box>

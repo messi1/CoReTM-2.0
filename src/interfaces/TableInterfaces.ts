@@ -1,18 +1,22 @@
-export interface IOverviewTable {
+export interface IOverviewTableRow {
+    type: string,
     dataflowId: number,
     dataflowName: string,
     interaction: string,
     description: string,
-    S: boolean,
-    T: boolean,
-    R: boolean,
-    I: boolean,
-    D: boolean,
-    E: boolean
+    threat: {
+        S: boolean,
+        T: boolean,
+        R: boolean,
+        I: boolean,
+        D: boolean,
+        E: boolean
+    }
 }
 
-export interface IThreatTable {
-    threatId: number,
+export interface IThreatTableRow {
+    type: string,
+    threatId: string,
     dataflowId: number,
     strideType: string,
     threat: string,

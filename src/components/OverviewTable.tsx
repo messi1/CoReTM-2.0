@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -10,26 +10,34 @@ import {Box, Button, Checkbox, TextField} from "@mui/material";
 import TableContainer from "@mui/material/TableContainer";
 
 import { ICrossingElements } from "../interfaces/DrawioInterfaces";
-import { IOverviewTable } from "../interfaces/TableInterfaces";
+import { IOverviewTableRow } from "../interfaces/TableInterfaces";
 
-export default function OverviewTable({ crossingElements }: { crossingElements: ICrossingElements[] }) {
-    const [overviewTable, setOverviewTable] = useState<IOverviewTable[]>([]);
+
+
+export default function OverviewTable({ crossingElements, onSave }: { crossingElements: ICrossingElements[], onSave: (data: IOverviewTableRow[]) => void }) {
+    const [overviewTable, setOverviewTable] = useState<IOverviewTableRow[]>([]);
+    const [saveClicked, setSaveClicked] = useState(false);
+
 
     useEffect(() => {
         const tableData = crossingElements.map((element) => ({
+            type: "OverviewRow",
             dataflowId: element.dataflow.id,
             dataflowName: element.dataflow.name,
             interaction: `${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`,
             description: "",
-            S: false,
-            T: false,
-            R: false,
-            I: false,
-            D: false,
-            E: false
+            threat: {
+                S: false,
+                T: false,
+                R: false,
+                I: false,
+                D: false,
+                E: false
+            }
         }));
         setOverviewTable(tableData);
     }, [crossingElements]);
+
 
     const handleDescriptionChange = (index: number, value: string) => {
         const updatedData = [...overviewTable];
@@ -39,16 +47,16 @@ export default function OverviewTable({ crossingElements }: { crossingElements: 
 
     const handleCheckboxChange = (index: number, field: 'S' | 'T' | 'R' | 'I' | 'D' | 'E', value: boolean) => {
         const updatedData = [...overviewTable];
-        updatedData[index][field] = value as boolean;
+        updatedData[index].threat[field] = value as boolean;
         setOverviewTable(updatedData);
     };
 
-    function handleClickEvent() {
-        console.log("overview done", overviewTable)
-    }
+    const handleSave = () => {
+        onSave(overviewTable)
+        setSaveClicked(true);
+    };
 
     return (
-        <>
         <Box sx={{marginTop: '8px'}}>
             <TableContainer component={Paper}>
                 <Table>
@@ -82,42 +90,43 @@ export default function OverviewTable({ crossingElements }: { crossingElements: 
                                 <TableCell align="center">
                                     <Checkbox
                                         defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'S', !overviewTable[index].S)}/>
+                                        onChange={() => handleCheckboxChange(index, 'S', !overviewTable[index].threat.S)}/>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Checkbox
                                         defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'T', !overviewTable[index].T)}/>
+                                        onChange={() => handleCheckboxChange(index, 'T', !overviewTable[index].threat.T)}/>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Checkbox
                                         defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'R', !overviewTable[index].R)}/>
+                                        onChange={() => handleCheckboxChange(index, 'R', !overviewTable[index].threat.R)}/>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Checkbox
                                         defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'I', !overviewTable[index].I)}/>
+                                        onChange={() => handleCheckboxChange(index, 'I', !overviewTable[index].threat.I)}/>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Checkbox
                                         defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'D', !overviewTable[index].D)}/>
+                                        onChange={() => handleCheckboxChange(index, 'D', !overviewTable[index].threat.D)}/>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Checkbox
                                         defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'E', !overviewTable[index].E)}/>
+                                        onChange={() => handleCheckboxChange(index, 'E', !overviewTable[index].threat.E)}/>
                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-        </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px'}}>
-                <Button variant="contained" color="primary" onClick={handleClickEvent}>Next</Button>
+            {!saveClicked &&
+                <Box sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '8px'}}>
+                <Button variant="contained" color="primary" onClick={handleSave}>Save</Button>
             </Box>
-    </>
+            }
+        </Box>
     );
 }

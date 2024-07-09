@@ -10,12 +10,8 @@ export default class DiagramAnalyser {
     private elementsCrossingTrustBoundaries: ICrossingElements[];
 
     constructor() {
-        this.diagramElements = {
-            dataFlowsArray: Array<IDataFlow>(),
-            elementsArray: Array<IElement>(),
-            trustBoundariesArray: Array<ITrustBoundary>()
-        };
-        this.elementsCrossingTrustBoundaries = Array<ICrossingElements>();
+        this.diagramElements = {} as IDiagram;
+        this.elementsCrossingTrustBoundaries = {} as ICrossingElements[];
     }
 
     private createElementToAdd(cell: Element, geometryElement: Element, type: string) {

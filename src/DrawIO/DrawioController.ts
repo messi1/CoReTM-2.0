@@ -12,7 +12,7 @@ export default class DrawioController {
     private storage: LocalStorageModel;
     private diagramAnalyser: DiagramAnalyser;
 
-    constructor(drawio: any, storage: any) {
+    constructor(drawio: CORSCommunicator, storage: LocalStorageModel) {
         this.drawio = drawio
         this.storage = storage
         this.diagramAnalyser = new DiagramAnalyser();
@@ -36,6 +36,7 @@ export default class DrawioController {
             return
         }
         const msg = JSON.parse(message.data);
+        console.log('Incoming message: ', msg);
 
         switch (msg.event) {
             case 'autosave':
