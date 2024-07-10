@@ -155,9 +155,9 @@ export default class DrawioController {
             this.drawio.send(statusAction);
         } else {
             let loadAction = {
-                action: 'load',
-                autosave: 1,
-                xml: ""
+                "action": "load",
+                "autosave": 1,
+                "xml": "<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"2\" value=\"Note that &lt;u&gt;&lt;b&gt;only&lt;/b&gt;&lt;/u&gt; elements from the &lt;br&gt;CoReTM Library will be analysed.\" style=\"text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;overflow=hidden;\" vertex=\"1\" connectable=\"0\" parent=\"1\"><mxGeometry x=\"0\" y=\"0\" width=\"200\" height=\"50\" as=\"geometry\"/></mxCell></root></mxGraphModel>"
             };
             this.drawio.send(loadAction);
         }
