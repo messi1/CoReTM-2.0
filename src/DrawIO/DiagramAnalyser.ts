@@ -165,6 +165,10 @@ export default class DiagramAnalyser {
             console.log("Elements that are not part of the CoReTM library: ")
             console.log(this.notAllowedElements)
         }
+
+        console.log("Crossing Elements: ", this.elementsCrossingTrustBoundaries)
+
+
         return this.elementsCrossingTrustBoundaries;
     }
 }

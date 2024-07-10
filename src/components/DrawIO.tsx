@@ -44,8 +44,13 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     }, [sendDiagram]);
 
     function handleClickAnalyseEvent() {
-        setCrossingElements(drawioController!.parseXml());
-        setShowOverviewTable(true);
+        const parsedElements = drawioController!.parseXml();
+        setCrossingElements(parsedElements);
+        if (parsedElements.length > 0) {
+            setShowOverviewTable(true);
+        } else {
+            alert("There are no dataflows crossing a trust boundary. Therefore STRIDE-per-Interaction cannot be applied.");
+        }
     }
 
     function handleClickNextEvent() {
