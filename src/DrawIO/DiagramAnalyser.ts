@@ -8,10 +8,12 @@ import {
 export default class DiagramAnalyser {
     private diagramElements: IDiagram;
     private elementsCrossingTrustBoundaries: ICrossingElements[];
+    private notAllowedElements: Element[];
 
     constructor() {
         this.diagramElements = {} as IDiagram;
         this.elementsCrossingTrustBoundaries = {} as ICrossingElements[];
+        this.notAllowedElements = [];
     }
 
     private createElementToAdd(cell: Element, geometryElement: Element, type: string) {
@@ -126,19 +128,21 @@ export default class DiagramAnalyser {
             elementsArray: new Array<IElement>(),
             trustBoundariesArray: new Array<ITrustBoundary>()
         };
-
         this.elementsCrossingTrustBoundaries = new Array<ICrossingElements>();
+        this.notAllowedElements = [];
 
         Array.from(mxCells).forEach(cell  => {
             const type : string | null = cell.getAttribute("type");
             if (!type) {
-                console.error("Cell type is not recognized or missing");
+                if (cell.getAttribute("id") !== "0" && cell.getAttribute("id") !== "1" && cell.getAttribute("value") !== "Note that <u><b>only</b></u> elements from the <br>CoReTM Library will be analysed.") {
+                    this.notAllowedElements.push(cell);
+                }
                 return;
             }
 
             const geometryElement = cell.getElementsByTagName("mxGeometry")[0];
             if (!geometryElement) {
-                console.error(`Geometry missing for cell ${cell.getAttribute("id")}`);
+                console.error(`Geometry tag missing for element: ${cell}`);
                 return;
             }
 
@@ -154,9 +158,13 @@ export default class DiagramAnalyser {
 
         this.findDataflowsCrossingTrustBoundary();
 
-        console.log("Elements that are connected by a dataflow crossing a trust boundary: ")
-        console.log(this.elementsCrossingTrustBoundaries)
-
+        if (this.notAllowedElements.length > 0) {
+            alert("Your diagram contains elements that are not part of the CoReTM Library. " +
+                "These elements will not be considered in the analysis. " +
+                "Please check the console for more information.")
+            console.log("Elements that are not part of the CoReTM library: ")
+            console.log(this.notAllowedElements)
+        }
         return this.elementsCrossingTrustBoundaries;
     }
 }
