@@ -63,7 +63,7 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
 
     return (
         <Box sx={{ width: '100%', height: '100%' }}>
-            <iframe
+            {showDrawio && <iframe
                 ref={iframeRef}
                 width="100%"
                 height="700"
@@ -71,6 +71,11 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
                 style={{ border: 'none' }}
                 title="draw.io"
             />
+            }
+            {drawioController &&
+                <Button variant="contained" color="primary" onClick={drawioController.exportDiagram.bind(drawioController)}>export</Button>
+            }
+
             {!showOverviewTable &&
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
                     <Button variant="contained" color="primary" onClick={handleClickAnalyseEvent}>Analyse</Button>

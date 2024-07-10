@@ -163,6 +163,17 @@ export default class DrawioController {
         }
     }
 
+    exportDiagram() {
+        const exportAction = {
+            action: 'export',
+            format: 'png',
+            spin: true,
+            message: 'Exporting diagram...'
+        }
+        console.log(exportAction)
+        this.drawio.send(exportAction)
+    }
+
 
     storeDiagram(msg: any) {
         const svg = atob(msg.data.substring(msg.data.indexOf(',') + 1))
@@ -190,6 +201,7 @@ export default class DrawioController {
             try
             {
                 const xmlDoc : XMLDocument = parser.parseFromString(xml, "text/xml");
+                console.log(xmlDoc);
                 return this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
             }
             catch (e) {
