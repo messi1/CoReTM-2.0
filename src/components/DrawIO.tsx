@@ -44,21 +44,19 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
     }, [sendDiagram]);
 
     function handleClickAnalyseEvent() {
-        const parsedElements = drawioController!.parseXml();
-        setCrossingElements(parsedElements);
-        if (parsedElements.length > 0) {
-            setShowOverviewTable(true);
+        const {crossingElements, invalidDataflows} = drawioController!.parseXml();
+        setCrossingElements(crossingElements);
+        if (crossingElements.length > 0) {
+            if (!invalidDataflows) {
+                setShowOverviewTable(true);
+            }
         } else {
             alert("There are no dataflows crossing a trust boundary. Therefore STRIDE-per-Interaction cannot be applied.");
         }
     }
 
-    function handleClickNextEvent() {
-        setShowDrawio(false);
-        setShowThreatTable(true);
-    }
     function handleSaveOverviewTable(data: IOverviewTableRow[]){
-        const threatTables: IThreatTableRow[][] = tablesController!.parseOverviewTable(data);
+        tablesController!.parseOverviewTable(data);
         setShowThreatTable(true);
     }
 
@@ -77,10 +75,6 @@ function DrawIO({ sendDiagram }: { sendDiagram: (diagram: string | null) => void
                 title="draw.io"
             />
             }
-            {drawioController &&
-                <Button variant="contained" color="primary" onClick={drawioController.exportDiagram.bind(drawioController)}>export</Button>
-            }
-
             {!showOverviewTable &&
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
                     <Button variant="contained" color="primary" onClick={handleClickAnalyseEvent}>Analyse</Button>

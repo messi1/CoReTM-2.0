@@ -9,11 +9,13 @@ export default class DiagramAnalyser {
     private diagramElements: IDiagram;
     private elementsCrossingTrustBoundaries: ICrossingElements[];
     private notAllowedElements: Element[];
+    private dataflowsWithoutSourceOrTarget: IDataFlow[];
 
     constructor() {
         this.diagramElements = {} as IDiagram;
         this.elementsCrossingTrustBoundaries = {} as ICrossingElements[];
         this.notAllowedElements = [];
+        this.dataflowsWithoutSourceOrTarget = [];
     }
 
     private createElementToAdd(cell: Element, geometryElement: Element, type: string) {
@@ -55,11 +57,9 @@ export default class DiagramAnalyser {
 
     private checkIfSourceAndTargetExist(elementToAdd : any): boolean {
         if (isNaN(elementToAdd.sourceId)) {
-            console.error("SourceId is null");
             return false;
         }
         if (isNaN(elementToAdd.targetId)) {
-            console.error("TargetId is null");
             return false;
         }
         return true;
@@ -69,7 +69,8 @@ export default class DiagramAnalyser {
 
         if (type === "Dataflow") {
             if (!this.checkIfSourceAndTargetExist(elementToAdd)) {
-                console.error("Source or target is missing for dataflow: " + elementToAdd.name);
+                this.dataflowsWithoutSourceOrTarget.push(elementToAdd);
+                alert("Source and/or target is missing for dataflow: " + elementToAdd.name)
                 return;
             }
             this.diagramElements.dataFlowsArray.push(elementToAdd);
@@ -120,7 +121,7 @@ export default class DiagramAnalyser {
         });
     }
 
-    parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument): ICrossingElements[]  {
+    parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument) : {crossingElements: ICrossingElements[], invalidDataflows: boolean} {
         const mxCells = xmlDoc.getElementsByTagName("mxCell");
 
         this.diagramElements = {
@@ -130,6 +131,7 @@ export default class DiagramAnalyser {
         };
         this.elementsCrossingTrustBoundaries = new Array<ICrossingElements>();
         this.notAllowedElements = [];
+        this.dataflowsWithoutSourceOrTarget = [];
 
         Array.from(mxCells).forEach(cell  => {
             const type : string | null = cell.getAttribute("type");
@@ -142,7 +144,6 @@ export default class DiagramAnalyser {
 
             const geometryElement = cell.getElementsByTagName("mxGeometry")[0];
             if (!geometryElement) {
-                console.error(`Geometry tag missing for element: ${cell}`);
                 return;
             }
 
@@ -162,14 +163,12 @@ export default class DiagramAnalyser {
             alert("Your diagram contains elements that are not part of the CoReTM Library. " +
                 "These elements will not be considered in the analysis. " +
                 "Please check the console for more information.")
-            console.log("Elements that are not part of the CoReTM library: ")
-            console.log(this.notAllowedElements)
+            console.log("Elements that are not part of the CoReTM library: ", this.notAllowedElements)
         }
-
-        console.log("Crossing Elements: ", this.elementsCrossingTrustBoundaries)
-
-
-        return this.elementsCrossingTrustBoundaries;
+        return {
+            crossingElements: this.elementsCrossingTrustBoundaries,
+            invalidDataflows: this.dataflowsWithoutSourceOrTarget.length > 0
+        }
     }
 }
 

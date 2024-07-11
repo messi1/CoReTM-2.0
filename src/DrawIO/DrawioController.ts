@@ -11,11 +11,13 @@ export default class DrawioController {
     private drawio: CORSCommunicator;
     private storage: LocalStorageModel;
     private diagramAnalyser: DiagramAnalyser;
+    private diagramExportPng: string;
 
     constructor(drawio: CORSCommunicator, storage: LocalStorageModel) {
         this.drawio = drawio
         this.storage = storage
         this.diagramAnalyser = new DiagramAnalyser();
+        this.diagramExportPng = "";
         this.drawio.receive(this.handleIncomingEvents.bind(this))
     }
 
@@ -36,23 +38,18 @@ export default class DrawioController {
             return
         }
         const msg = JSON.parse(message.data);
-        console.log('Incoming message: ', msg);
 
         switch (msg.event) {
             case 'autosave':
-                console.log('Autosave event: ', msg);
                 this.autoSaveDiagram(msg);
                 break;
             case 'export':
-                console.log('Export event: ', msg);
                 this.storeDiagram(msg);
                 break;
             case 'init':
-                console.log('Init event: ', msg);
                 this.loadDrawio();
                 break;
             case 'configure':
-                console.log('Configure event: ', msg);
                 this.configureDrawio();
                 break;
             default:
@@ -130,7 +127,7 @@ export default class DrawioController {
                             "data": coretm
                         }]
                     }]
-                }]
+                }],
             }
         }
         this.drawio.send(configurationAction)
@@ -144,9 +141,9 @@ export default class DrawioController {
             let loadAction = {
                 action: 'load',
                 autosave: 1,
-                xml: parsedDraft.xml
+                xml: parsedDraft.xml,
+                title: "example title"
             };
-            console.log("Load action: ", loadAction);
             const statusAction = {
                 action: 'status',
                 modified: true
@@ -157,7 +154,8 @@ export default class DrawioController {
             let loadAction = {
                 "action": "load",
                 "autosave": 1,
-                "xml": "<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"2\" value=\"Note that &lt;u&gt;&lt;b&gt;only&lt;/b&gt;&lt;/u&gt; elements from the &lt;br&gt;CoReTM Library will be analysed.\" style=\"text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;overflow=hidden;\" vertex=\"1\" connectable=\"0\" parent=\"1\"><mxGeometry x=\"0\" y=\"0\" width=\"200\" height=\"50\" as=\"geometry\"/></mxCell></root></mxGraphModel>"
+                "xml": "<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"2\" value=\"Note that &lt;u&gt;&lt;b&gt;only&lt;/b&gt;&lt;/u&gt; elements from the &lt;br&gt;CoReTM Library will be analysed.\" style=\"text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;overflow=hidden;\" vertex=\"1\" connectable=\"0\" parent=\"1\"><mxGeometry x=\"0\" y=\"0\" width=\"200\" height=\"50\" as=\"geometry\"/></mxCell></root></mxGraphModel>",
+                title: "example title"
             };
             this.drawio.send(loadAction);
         }
@@ -166,51 +164,48 @@ export default class DrawioController {
     exportDiagram() {
         const exportAction = {
             action: 'export',
-            format: 'png',
-            spin: true,
-            message: 'Exporting diagram...'
+            format: 'png'
         }
-        console.log(exportAction)
         this.drawio.send(exportAction)
     }
 
-
-    storeDiagram(msg: any) {
-        const svg = atob(msg.data.substring(msg.data.indexOf(',') + 1))
+    storeDiagram(msg: any) : any {
+        this.diagramExportPng = msg.data
         this.storage.write({
-            data: svg
-        })
+            data: JSON.stringify(this.diagramExportPng)
+        }, "DrawioExport")
     }
 
     autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
     }
 
-    close() {
-        // TOOD
-        console.log('To be implemented')
-    }
 
-    parseXml() : ICrossingElements[]  {
+    parseXml() : {crossingElements: ICrossingElements[], invalidDataflows: boolean}  {
         const xmlDataString : string | null = this.storage.read('DrawioMsg');
         const parsed = JSON.parse(xmlDataString!);
         const xml = parsed.xml;
 
+        let xmlDoc : XMLDocument;
+
         if (xmlDataString) {
             const parser = new DOMParser();
-            try
-            {
-                const xmlDoc : XMLDocument = parser.parseFromString(xml, "text/xml");
-                console.log(xmlDoc);
-                return this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc);
+            try {
+                xmlDoc = parser.parseFromString(xml, "text/xml");
             }
             catch (e) {
                 console.log(e);
             }
         }
-        // TODO add error handling if something goes wrong (e.g. dataflow without source or target)
-        alert("Some elements could not be processed, please check the console for more information");
-        return [];
+        const {crossingElements, invalidDataflows} = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc!);
+        if (crossingElements.length > 0) {
+            this.exportDiagram()
+        }
+
+        return {
+            crossingElements: crossingElements,
+            invalidDataflows: invalidDataflows
+        }
     }
 }
 
