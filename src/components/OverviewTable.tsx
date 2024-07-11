@@ -52,7 +52,12 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
     };
 
     const handleSave = () => {
-        onSave(overviewTable)
+        const hasEmptyFields = overviewTable.some(row => row.description.trim() === '');
+        if (hasEmptyFields) {
+            alert("Please fill in all descriptions before saving.");
+            return;
+        }
+        onSave(overviewTable);
         setSaveClicked(true);
     };
 

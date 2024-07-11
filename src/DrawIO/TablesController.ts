@@ -48,7 +48,6 @@ export default class TablesController {
     public setThreatTables(threatTables: IThreatTableRow[][]): void {
         this.threatTables = threatTables;
         this.storage.write(JSON.stringify(threatTables), "ThreatTables");
-        console.log(this.storage.read("ThreatRow"));
     }
 
     public getThreatTables(): IThreatTableRow[][] {

@@ -63,6 +63,11 @@ export default function ThreatTables({ threatTables, onSave } : { threatTables: 
     };
 
     const handleSave = () => {
+        const hasEmptyFields = threatTable.some(rows => rows.some(row => row.threat.trim() === '' || row.mitigation.trim() === '' || row.validation.trim() === ''));
+        if (hasEmptyFields) {
+            alert("Please fill in all fields before saving.");
+            return;
+        }
         onSave(threatTable);
         setSaveClicked(true);
     };
