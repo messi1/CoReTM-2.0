@@ -1,13 +1,14 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 
-import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import {Box, Button, Checkbox, TextField} from "@mui/material";
+import {Box, Button, Checkbox, TextField, Typography} from "@mui/material";
 import TableContainer from "@mui/material/TableContainer";
+import theme from "../utils/theme";
+import {ThemeProvider} from "@mui/material/styles";
 
 import { ICrossingElements } from "../interfaces/DrawioInterfaces";
 import { IOverviewTableRow } from "../interfaces/TableInterfaces";
@@ -62,76 +63,79 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
     };
 
     return (
-        <Box sx={{marginTop: '8px'}}>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="center">Dataflow</TableCell>
-                            <TableCell align="center">Interaction</TableCell>
-                            <TableCell align="center">Description</TableCell>
-                            <TableCell align="center">S</TableCell>
-                            <TableCell align="center">T</TableCell>
-                            <TableCell align="center">R</TableCell>
-                            <TableCell align="center">I</TableCell>
-                            <TableCell align="center">D</TableCell>
-                            <TableCell align="center">E</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {crossingElements.map((element, index) => (
-                            <TableRow key={index}>
-                                <TableCell align="center">{element.dataflow.name}</TableCell>
-                                <TableCell
-                                    align="center">{`${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`}</TableCell>
-                                <TableCell align="center">
-                                    <TextField
-                                        size="small"
-                                        variant="outlined"
-                                        placeholder="Provide description"
-                                        value={overviewTable[index]?.description || ''}
-                                        onChange={(event) => handleDescriptionChange(index, event.target.value)}/>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Checkbox
-                                        defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'S', !overviewTable[index].threat.S)}/>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Checkbox
-                                        defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'T', !overviewTable[index].threat.T)}/>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Checkbox
-                                        defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'R', !overviewTable[index].threat.R)}/>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Checkbox
-                                        defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'I', !overviewTable[index].threat.I)}/>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Checkbox
-                                        defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'D', !overviewTable[index].threat.D)}/>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Checkbox
-                                        defaultChecked={false}
-                                        onChange={() => handleCheckboxChange(index, 'E', !overviewTable[index].threat.E)}/>
-                                </TableCell>
+        <ThemeProvider theme={theme}>
+            <Box sx={{marginTop: '8px'}}>
+                <Typography variant={"h4"}>Overview Table</Typography>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>Dataflow</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>Interaction</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>Description</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>S</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>T</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>R</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>I</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>D</TableCell>
+                                <TableCell align="center" sx={{fontWeight: 'bold'}}>E</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            {!saveClicked &&
-                <Box sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '8px'}}>
-                <Button variant="contained" color="primary" onClick={handleSave}>Save</Button>
+                        </TableHead>
+                        <TableBody>
+                            {crossingElements.map((element, index) => (
+                                <TableRow key={index}>
+                                    <TableCell align="center">{element.dataflow.name}</TableCell>
+                                    <TableCell
+                                        align="center">{`${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`}</TableCell>
+                                    <TableCell align="center">
+                                        <TextField
+                                            size='small'
+                                            variant="outlined"
+                                            placeholder="write here ..."
+                                            value={overviewTable[index]?.description || ''}
+                                            onChange={(event) => handleDescriptionChange(index, event.target.value)}/>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Checkbox
+                                            defaultChecked={false}
+                                            onChange={() => handleCheckboxChange(index, 'S', !overviewTable[index].threat.S)}/>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Checkbox
+                                            defaultChecked={false}
+                                            onChange={() => handleCheckboxChange(index, 'T', !overviewTable[index].threat.T)}/>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Checkbox
+                                            defaultChecked={false}
+                                            onChange={() => handleCheckboxChange(index, 'R', !overviewTable[index].threat.R)}/>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Checkbox
+                                            defaultChecked={false}
+                                            onChange={() => handleCheckboxChange(index, 'I', !overviewTable[index].threat.I)}/>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Checkbox
+                                            defaultChecked={false}
+                                            onChange={() => handleCheckboxChange(index, 'D', !overviewTable[index].threat.D)}/>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Checkbox
+                                            defaultChecked={false}
+                                            onChange={() => handleCheckboxChange(index, 'E', !overviewTable[index].threat.E)}/>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                {!saveClicked &&
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '16px'}}>
+                    <Button variant="contained" color="secondary" onClick={handleSave}>Save</Button>
+                </Box>
+                }
             </Box>
-            }
-        </Box>
+        </ThemeProvider>
     );
 }

@@ -1,31 +1,38 @@
 import React from 'react';
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Button, Stack, Typography, Container, Box, Grid } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../utils/theme";
 
-import {Button, Stack, Typography} from "@mui/material";
-import Container from "@mui/material/Container";
 
 function Home() {
-
     return (
-        <Container>
-            <Typography variant="h2" component="h1" gutterBottom>
-                CoReTM 2.0
-            </Typography>
-            <Typography variant="subtitle1">
-                Threat modeling with STRIDE-per-Interaction
-            </Typography>
-            <Stack direction="column" spacing={2} className={"Home-link"}>
-                <Link to={"/login"} style={{ textDecoration: 'none' }}>
-                    <Button variant="outlined">Login</Button>
-                </Link>
-                <Link to="/signup" style={{ textDecoration: 'none' }}>
-                    <Button variant="outlined">Sign Up</Button>
-                </Link>
-                <Link to={"/model"} style={{ textDecoration: 'none' }}>
-                    <Button variant="outlined">Continue without Login</Button>
-                </Link>
-            </Stack>
-        </Container>
+        <ThemeProvider theme={theme}>
+            <Grid container justifyContent="center" alignItems="center">
+                <Container maxWidth="md">
+                    <Box textAlign="center" sx={{ mb: 4 }}>
+                        <Typography variant="h1" component="h1">
+                            CoReTM 2.0
+                        </Typography>
+                        <Typography variant="h5" gutterBottom>
+                            Threat modeling with STRIDE-per-Interaction
+                        </Typography>
+                    </Box>
+                    <Stack direction="column" spacing={2} alignItems="center">
+                        <Link to={"/import"} style={{ textDecoration: 'none' }}>
+                            <Button variant="outlined" color="secondary">
+                                Import
+                            </Button>
+                        </Link>
+                        <Link to={"/model"} style={{ textDecoration: 'none' }}>
+                            <Button variant="contained" color="secondary">
+                                Create
+                            </Button>
+                        </Link>
+                    </Stack>
+                </Container>
+            </Grid>
+        </ThemeProvider>
     );
 }
 

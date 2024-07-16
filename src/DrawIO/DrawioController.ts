@@ -12,16 +12,18 @@ export default class DrawioController {
     private storage: LocalStorageModel;
     private diagramAnalyser: DiagramAnalyser;
     private diagramExportPng: string;
+    private projectName: string;
 
-    constructor(drawio: CORSCommunicator, storage: LocalStorageModel) {
+    constructor(drawio: CORSCommunicator, storage: LocalStorageModel, projectName: string) {
         this.drawio = drawio
         this.storage = storage
         this.diagramAnalyser = new DiagramAnalyser();
+        this.projectName = projectName;
         this.diagramExportPng = "";
         this.drawio.receive(this.handleIncomingEvents.bind(this))
     }
 
-    isJsonString = (str: any) => {
+    private isJsonString = (str: any) => {
         try {
             JSON.parse(str);
         } catch (e) {
@@ -30,7 +32,7 @@ export default class DrawioController {
         return true;
     }
 
-    handleIncomingEvents(message: any) {
+    private handleIncomingEvents(message: any) {
         if (message.data.length <= 0) {
             return
         }
@@ -57,7 +59,7 @@ export default class DrawioController {
         }
     }
 
-    configureDrawio() {
+    private configureDrawio() {
         const configurationAction = {
             action: 'configure',
             config: {
@@ -133,7 +135,7 @@ export default class DrawioController {
         this.drawio.send(configurationAction)
     }
 
-    loadDrawio(): void {
+    private loadDrawio(): void {
         const draft: any | null = this.storage.read("DrawioMsg");
 
         if (draft) {
@@ -142,7 +144,7 @@ export default class DrawioController {
                 action: 'load',
                 autosave: 1,
                 xml: parsedDraft.xml,
-                title: "example title"
+                title: this.projectName
             };
             const statusAction = {
                 action: 'status',
@@ -161,7 +163,7 @@ export default class DrawioController {
         }
     }
 
-    exportDiagram() {
+    private exportDiagram() {
         const exportAction = {
             action: 'export',
             format: 'png'
@@ -169,14 +171,14 @@ export default class DrawioController {
         this.drawio.send(exportAction)
     }
 
-    storeDiagram(msg: any) : any {
+    private storeDiagram(msg: any) : any {
         this.diagramExportPng = msg.data
         this.storage.write({
             data: JSON.stringify(this.diagramExportPng)
         }, "DrawioExport")
     }
 
-    autoSaveDiagram(msg: any) {
+    private autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
     }
 

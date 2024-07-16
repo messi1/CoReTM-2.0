@@ -1,10 +1,10 @@
-import React, {useState} from "react";
+import React from "react";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Home from "./views/Home";
-import Login from "./views/Login";
-import Signup from "./views/Signup";
 import Model from "./views/Model";
 import NotFound from "./views/NotFound";
+import Import from "./views/Import";
+
 
 
 const router = createBrowserRouter([
@@ -14,12 +14,8 @@ const router = createBrowserRouter([
         errorElement: <NotFound />
     },
     {
-        path: "/login",
-        element: <Login />
-    },
-    {
-        path: "/signup",
-        element: <Signup />
+        path: "/import",
+        element: <Import />
     },
     {
         path: "/model",
@@ -28,7 +24,6 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-
     return (
         <RouterProvider router={router} />
     );

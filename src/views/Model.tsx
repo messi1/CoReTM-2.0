@@ -1,14 +1,15 @@
 import React, {useState} from 'react';
 import DrawIO from "../components/DrawIO";
-import {ClimbingBoxLoader} from "react-spinners";
+
 import Container from "@mui/material/Container";
-import {Typography} from "@mui/material";
+import {Box, Button, Grid, TextField, Typography} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
+import theme from "../utils/theme";
 
 function Model() {
     let [diagram, setDiagram] = useState({})
-    let [loading, setLoading] = useState(false)
-
-
+    let [projectName, setProjectName] = useState("")
+    let [submitted, setSubmitted] = useState(false)
 
     const receiveDiagram = (diagram: string | null) => {
         if (diagram) {
@@ -16,15 +17,49 @@ function Model() {
         }
     };
 
-    return (
-        <Container>
-            <Typography variant="h3" component="h1" gutterBottom>
-                Create your Dataflow Diagram
-            </Typography>
-            <DrawIO sendDiagram={receiveDiagram}/>
+    const handleProjectNameChange = (value: string) => {
+        setProjectName(value)
+    }
 
-            <ClimbingBoxLoader color={"#21a1f1"} loading={loading}/>
-        </Container>
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setSubmitted(true)
+    }
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Grid container justifyContent="center" alignItems="center">
+                <Container maxWidth="md">
+                    {!submitted ? (
+                        <>
+                        <Typography variant="h4" gutterBottom>
+                                Provide a project name
+                        </Typography>
+                        <form onSubmit={handleSubmit}>
+                            <Box mb={2}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    variant="outlined"
+                                    placeholder="Provide a project name"
+                                    value={projectName}
+                                    onChange={(event) => handleProjectNameChange(event.target.value)}
+                                    label="Project Name"
+                                />
+                            </Box>
+                            <Button variant="contained" color="secondary" type="submit">
+                                Submit
+                            </Button>
+                        </form>
+                        </>
+                    ) : (
+                        projectName.trim() !== "" && (
+                            <DrawIO sendDiagram={receiveDiagram} projectName={projectName} />
+                        )
+                    )}
+                </Container>
+            </Grid>
+        </ThemeProvider>
     );
 }
 

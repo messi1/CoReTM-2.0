@@ -1,14 +1,16 @@
 import { IThreatTableRow } from "../interfaces/TableInterfaces";
+import React, {useEffect, useRef, useState} from "react";
 
-import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import {Box, Button, TextField} from "@mui/material";
+import {Box, Button, TextField, Typography} from "@mui/material";
 import TableContainer from "@mui/material/TableContainer";
-import React, {useEffect, useRef, useState} from "react";
+import {ThemeProvider} from "@mui/material/styles";
+import theme from "../utils/theme";
+
 
 
 export default function ThreatTables({ threatTables, onSave } : { threatTables: IThreatTableRow[][], onSave: (data: IThreatTableRow[][]) => void }) {
@@ -27,7 +29,7 @@ export default function ThreatTables({ threatTables, onSave } : { threatTables: 
             return map;
         };
         lookupMapRef.current = generateLookupMap(threatTable);
-    }, []);
+    },);
 
     const handleThreatChange = (index: number, threatId: string, value: string): void => {
         setThreatTable((prev) => {
@@ -73,61 +75,64 @@ export default function ThreatTables({ threatTables, onSave } : { threatTables: 
     };
 
     return (
-        <Box sx={{marginTop: '8px'}}>
-            {threatTables.map((table, index) => (
-                <TableContainer  key={index} component={Paper} sx={{marginTop: '8px'}}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="center">Threat ID</TableCell>
-                                <TableCell align="center">Dataflow ID</TableCell>
-                                <TableCell align="center">STRIDE Type</TableCell>
-                                <TableCell align="center">Threat</TableCell>
-                                <TableCell align="center">Mitigation</TableCell>
-                                <TableCell align="center">Validation</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {table.map((row) => (
-                                <TableRow key={row.threatId}>
-                                    <TableCell align="center">{row.threatId}</TableCell>
-                                    <TableCell align="center">{row.dataflowId}</TableCell>
-                                    <TableCell align="center">{row.strideType}</TableCell>
-                                    <TableCell align="center">
-                                        <TextField
-                                            size="small"
-                                            variant="outlined"
-                                            placeholder="Describe threat"
-                                            value={row.threat}
-                                            onChange={(event) => handleThreatChange(index, row.threatId, event.target.value)}/>
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <TextField
-                                            size="small"
-                                            variant="outlined"
-                                            placeholder="Provide mitigation"
-                                            value={row.mitigation}
-                                            onChange={(event) => handleMitigationChange(index ,row.threatId, event.target.value)}/>
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <TextField
-                                            size="small"
-                                            variant="outlined"
-                                            placeholder="Provide validation"
-                                            value={row.validation}
-                                            onChange={(event) => handleValidationChange(index, row.threatId, event.target.value)}/>
-                                    </TableCell>
+        <ThemeProvider theme={theme}>
+            <Box sx={{marginTop: '8px'}}>
+                <Typography variant={"h4"}>Threat Tables</Typography>
+                {threatTables.map((table, index) => (
+                    <TableContainer  key={index}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center" sx={{fontWeight: 'bold'}}>Threat ID</TableCell>
+                                    <TableCell align="center" sx={{fontWeight: 'bold'}}>Dataflow ID</TableCell>
+                                    <TableCell align="center" sx={{fontWeight: 'bold'}}>STRIDE Type</TableCell>
+                                    <TableCell align="center" sx={{fontWeight: 'bold'}}>Threat</TableCell>
+                                    <TableCell align="center" sx={{fontWeight: 'bold'}}>Mitigation</TableCell>
+                                    <TableCell align="center" sx={{fontWeight: 'bold'}}>Validation</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            ))}
-            {!saveClicked &&
-                <Box sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '8px'}}>
-                    <Button variant="contained" color="primary" onClick={handleSave}>Save</Button>
-                </Box>
-            }
-        </Box>
+                            </TableHead>
+                            <TableBody>
+                                {table.map((row) => (
+                                    <TableRow key={row.threatId}>
+                                        <TableCell align="center">{row.threatId}</TableCell>
+                                        <TableCell align="center">{row.dataflowId}</TableCell>
+                                        <TableCell align="center">{row.strideType}</TableCell>
+                                        <TableCell align="center">
+                                            <TextField
+                                                size="small"
+                                                variant="outlined"
+                                                placeholder="Describe threat"
+                                                value={row.threat}
+                                                onChange={(event) => handleThreatChange(index, row.threatId, event.target.value)}/>
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <TextField
+                                                size="small"
+                                                variant="outlined"
+                                                placeholder="Provide mitigation"
+                                                value={row.mitigation}
+                                                onChange={(event) => handleMitigationChange(index ,row.threatId, event.target.value)}/>
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <TextField
+                                                size="small"
+                                                variant="outlined"
+                                                placeholder="Provide validation"
+                                                value={row.validation}
+                                                onChange={(event) => handleValidationChange(index, row.threatId, event.target.value)}/>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                ))}
+                {!saveClicked &&
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '16px'}}>
+                        <Button variant="contained" color="secondary" onClick={handleSave}>Save</Button>
+                    </Box>
+                }
+            </Box>
+        </ThemeProvider>
     );
 }
