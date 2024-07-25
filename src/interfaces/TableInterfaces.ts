@@ -17,7 +17,7 @@ export interface IOverviewTableRow {
 export interface IThreatTableRow {
     type: string,
     threatId: string,
-    dataflowId: number,
+    dataflowName: string,
     strideType: string,
     threat: string,
     mitigation: string,
