@@ -9,7 +9,7 @@ import { ICrossingElements } from "../interfaces/DrawioInterfaces";
 import {Box, Button} from "@mui/material";
 import OverviewTable from './OverviewTable';
 import TablesController from "../DrawIO/TablesController";
-import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableInterfaces";
+import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableRowInterfaces";
 import ThreatTables from "./ThreatTables";
 import theme from "../utils/theme";
 import {ThemeProvider} from "@mui/material/styles";

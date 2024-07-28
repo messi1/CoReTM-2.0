@@ -11,7 +11,7 @@ import theme from "../utils/theme";
 import {ThemeProvider} from "@mui/material/styles";
 
 import { ICrossingElements } from "../interfaces/DrawioInterfaces";
-import { IOverviewTableRow } from "../interfaces/TableInterfaces";
+import { IOverviewTableRow } from "../interfaces/TableRowInterfaces";
 
 
 

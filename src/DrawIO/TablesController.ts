@@ -1,5 +1,5 @@
 import LocalStorageModel from "./LocalStorageModel";
-import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableInterfaces";
+import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableRowInterfaces";
 
 
 export default class TablesController {

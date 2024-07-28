@@ -1,4 +1,4 @@
-import { IThreatTableRow } from "../interfaces/TableInterfaces";
+import { IThreatTableRow } from "../interfaces/TableRowInterfaces";
 import React, {useEffect, useRef, useState} from "react";
 
 import Table from "@mui/material/Table";
