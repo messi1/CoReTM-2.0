@@ -24,8 +24,8 @@ export default class TablesController {
                 if (value) {
                     const threatRow: IThreatTableRow = {
                         type: "ThreatRow",
-                        threatId: `${element.dataflowId}-${key}`,
-                        dataflowName: element.dataflowName,
+                        threatId: `${element.dataflowEnumeration}-${key}`,
+                        dataflowEnumeration: element.dataflowEnumeration,
                         strideType: key,
                         threat: "",
                         mitigation: "",

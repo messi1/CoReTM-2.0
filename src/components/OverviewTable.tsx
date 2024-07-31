@@ -23,8 +23,7 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
     useEffect(() => {
         const tableData = crossingElements.map((element) => ({
             type: "OverviewRow",
-            dataflowId: element.dataflow.id,
-            dataflowName: element.dataflow.name,
+            dataflowEnumeration: element.dataflow.enumeration,
             interaction: `${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`,
             description: "",
             threat: {
@@ -84,7 +83,7 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
                         <TableBody>
                             {crossingElements.map((element, index) => (
                                 <TableRow key={index}>
-                                    <TableCell align="center">{element.dataflow.name}</TableCell>
+                                    <TableCell align="center">{element.dataflow.enumeration}</TableCell>
                                     <TableCell
                                         align="center">{`${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`}</TableCell>
                                     <TableCell align="center">

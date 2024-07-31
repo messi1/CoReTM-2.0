@@ -42,7 +42,8 @@ export default class DiagramAnalyser {
                 return {
                     ...baseElement,
                     sourceId: parseInt(cell.getAttribute("source")!),
-                    targetId: parseInt(cell.getAttribute("target")!)
+                    targetId: parseInt(cell.getAttribute("target")!),
+                    enumeration: null
                 }
             case "TrustBoundary":
                 return {
@@ -124,6 +125,7 @@ export default class DiagramAnalyser {
     parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument) : {crossingElements: ICrossingElements[], invalidDataflows: boolean} {
         const mxCells = xmlDoc.getElementsByTagName("mxCell");
 
+
         this.diagramElements = {
             dataFlowsArray: new Array<IDataFlow>(),
             elementsArray: new Array<IElement>(),
@@ -165,6 +167,14 @@ export default class DiagramAnalyser {
                 "Please check the console for more information.")
             console.log("Elements that are not part of the CoReTM library: ", this.notAllowedElements)
         }
+        let i : number = 1;
+        this.diagramElements.dataFlowsArray.forEach(dataflow => {
+            dataflow.enumeration = i;
+            i++;
+        });
+
+        console.log(this.diagramElements.dataFlowsArray)
+
         return {
             crossingElements: this.elementsCrossingTrustBoundaries,
             invalidDataflows: this.dataflowsWithoutSourceOrTarget.length > 0

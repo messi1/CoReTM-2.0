@@ -25,6 +25,7 @@ export interface IDataFlow{
     type: string
     sourceId: number
     targetId: number
+    enumeration: number
 }
 
 export interface IDiagram {

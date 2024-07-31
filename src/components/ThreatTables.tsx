@@ -95,7 +95,7 @@ export default function ThreatTables({ threatTables, onSave } : { threatTables: 
                                 {table.map((row) => (
                                     <TableRow key={row.threatId}>
                                         <TableCell align="center">{row.threatId}</TableCell>
-                                        <TableCell align="center">{row.dataflowName}</TableCell>
+                                        <TableCell align="center">{row.dataflowEnumeration}</TableCell>
                                         <TableCell align="center">{row.strideType}</TableCell>
                                         <TableCell align="center">
                                             <TextField
