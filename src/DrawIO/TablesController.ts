@@ -24,12 +24,13 @@ export default class TablesController {
                 if (value) {
                     const threatRow: IThreatTableRow = {
                         type: "ThreatRow",
-                        threatId: `${element.dataflowEnumeration}-${key}`,
+                        threatId: crypto.randomUUID(),
                         dataflowEnumeration: element.dataflowEnumeration,
                         strideType: key,
                         threat: "",
                         mitigation: "",
-                        validation: ""
+                        validation: "",
+                        added: false
                     };
                     elementThreatRows.push(threatRow);
                 }

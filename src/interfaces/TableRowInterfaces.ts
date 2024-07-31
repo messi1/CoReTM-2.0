@@ -20,5 +20,6 @@ export interface IThreatTableRow {
     strideType: string,
     threat: string,
     mitigation: string,
-    validation: string
+    validation: string,
+    added: boolean
 }
