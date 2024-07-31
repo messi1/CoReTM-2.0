@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import DrawIO from "../components/DrawIO";
 
 import Container from "@mui/material/Container";
@@ -11,6 +11,14 @@ function Model() {
     let [projectName, setProjectName] = useState("")
     let [submitted, setSubmitted] = useState(false)
 
+    useEffect(() => {
+        const projectName = localStorage.getItem("projectName")
+        if (projectName) {
+            setProjectName(projectName)
+            setSubmitted(true)
+        }
+    }, []);
+
     const receiveDiagram = (diagram: string | null) => {
         if (diagram) {
             setDiagram(diagram);
@@ -19,6 +27,7 @@ function Model() {
 
     const handleProjectNameChange = (value: string) => {
         setProjectName(value)
+        localStorage.setItem("projectName", value)
     }
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

@@ -75,6 +75,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     function downloadLocalStorageAsJSON() {
 
         const localStorageData : any = {
+            'ProjectName': projectName,
             'Diagram': JSON.parse(localStorage.getItem('DrawioMsg')!).xml,
             'OverviewTable': localStorage.getItem('OverviewTable') || '[]',
             'ThreatTables': localStorage.getItem('ThreatTables') || '[]'
