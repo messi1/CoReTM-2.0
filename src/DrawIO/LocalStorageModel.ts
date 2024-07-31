@@ -2,7 +2,7 @@ export default class LocalStorageModel {
     private storageKey: string;
     private repo: Storage;
     private callbacks: ((event: StorageEvent) => void)[];
-    constructor(storageKey = 'diagram') {
+    constructor(storageKey = 'DrawioMsg') {
         this.storageKey = storageKey
         this.repo = localStorage
         this.callbacks = []
