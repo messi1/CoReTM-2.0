@@ -21,7 +21,7 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
     useEffect(() => {
         const generateLookupMap = (table: IThreatTableRow[][]) => {
             const map: Record<string, IThreatTableRow> = {};
-            table.forEach((rows, index) => {
+            table.forEach((rows) => {
                 rows.forEach(row => {
                     map[`${row.threatId}`] = row;
                 });
