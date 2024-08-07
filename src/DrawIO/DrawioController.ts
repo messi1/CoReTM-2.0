@@ -11,7 +11,8 @@ export default class DrawioController {
     private drawio: CORSCommunicator;
     private storage: LocalStorageModel;
     private diagramAnalyser: DiagramAnalyser;
-    private diagramImageBase64: string;
+    private diagramImage: HTMLImageElement;
+    private imageReadyCallback: ((image: HTMLImageElement) => void) | null = null;
     private projectName: string;
 
     constructor(drawio: CORSCommunicator, storage: LocalStorageModel, projectName: string) {
@@ -19,7 +20,7 @@ export default class DrawioController {
         this.storage = storage
         this.diagramAnalyser = new DiagramAnalyser();
         this.projectName = projectName;
-        this.diagramImageBase64 = "";
+        this.diagramImage  = new Image();
         this.drawio.receive(this.handleIncomingEvents.bind(this))
     }
 
@@ -172,19 +173,19 @@ export default class DrawioController {
     }
 
     private storeDiagram(msg: any) : any {
-        this.diagramImageBase64 = msg.data
-        this.storage.write({
-            data: JSON.stringify(this.diagramImageBase64)
-        }, "DrawioImage")
-        var image = new Image();
-        image.src = msg.data;
-        document.body.appendChild(image);
+        this.diagramImage.src = msg.data;
+        if (this.imageReadyCallback) {
+            this.imageReadyCallback(this.diagramImage);
+        }
     }
 
     private autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
     }
 
+    setImageReadyCallback(callback: (image: HTMLImageElement) => void) {
+        this.imageReadyCallback = callback;
+    }
 
     parseXml() : {crossingElements: ICrossingElements[], invalidDataflows: boolean}  {
         const xmlDataString : string | null = this.storage.read('DrawioMsg');

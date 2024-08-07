@@ -26,7 +26,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     let [drawioController, setDrawioController] = useState<DrawioController | null>(null);
     let [tablesController, setTablesController] = useState<TablesController | null>(null);
     let [crossingElements, setCrossingElements] = useState<ICrossingElements[] >([]);
-    let [drawioImage, setDrawioImage] = useState<string>("");
+    let [drawioImage, setDrawioImage] = useState<HTMLImageElement | null>(null);
 
 
     let [showDrawio, setShowDrawio] = useState(true);
@@ -49,6 +49,11 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
                 sendDiagram(diagram)
             })
             sendDiagram(localStorageModel.read())
+
+            stateController.setImageReadyCallback((image) => {
+                setDrawioImage(image);
+                setShowDrawio(false);
+            });
         }
     }, [initialized, projectName, sendDiagram]);
 
@@ -65,7 +70,6 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     }
 
     function handleSaveOverviewTable(data: IOverviewTableRow[]){
-        console.log(data)
         tablesController!.parseOverviewTable(data);
         setShowThreatTable(true);
     }
@@ -98,14 +102,23 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ width: '100%', height: '100%' }}>
-                {showDrawio && <iframe
+                {showDrawio ? (
+                    <iframe
                     ref={iframeRef}
                     width="100%"
                     height="700"
                     src="https://embed.diagrams.net/?embed=1&ui=dark&spin=1&proto=json&configure=1&noExitBtn=1&saveAndExit=0&noSaveBtn=1&noExitBtn=1"
                     style={{ border: 'none' }}
                     title="draw.io"
-                />
+                    />
+                ) : (
+                        <img src={drawioImage!.src} alt="Dataflow Diagram" style={{
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            height: 'auto',
+                            width: 'auto',
+                        }} />
+                    )
                 }
                 {!showOverviewTable &&
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
