@@ -26,6 +26,8 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     let [drawioController, setDrawioController] = useState<DrawioController | null>(null);
     let [tablesController, setTablesController] = useState<TablesController | null>(null);
     let [crossingElements, setCrossingElements] = useState<ICrossingElements[] >([]);
+    let [drawioImage, setDrawioImage] = useState<string>("");
+
 
     let [showDrawio, setShowDrawio] = useState(true);
     let [showOverviewTable, setShowOverviewTable] = useState(false);
@@ -63,6 +65,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     }
 
     function handleSaveOverviewTable(data: IOverviewTableRow[]){
+        console.log(data)
         tablesController!.parseOverviewTable(data);
         setShowThreatTable(true);
     }

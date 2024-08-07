@@ -116,10 +116,12 @@ export default class DiagramAnalyser {
                     elements: {
                         sourceElement: sourceElement,
                         targetElement: targetElement
-                    }
+                    },
+                    crossingTrustBoundaries: this.diagramElements.trustBoundariesArray.filter(trustBoundary => {
+                        return sourceElement.inTrustBoundary.includes(trustBoundary.id) || targetElement.inTrustBoundary.includes(trustBoundary.id)
                 })
-            }
-        });
+            })
+        }});
     }
 
     parseDifferentDfdElementsFromXml(xmlDoc: XMLDocument) : {crossingElements: ICrossingElements[], invalidDataflows: boolean} {
@@ -173,7 +175,7 @@ export default class DiagramAnalyser {
             i++;
         });
 
-        console.log(this.diagramElements.dataFlowsArray)
+        console.log(this.elementsCrossingTrustBoundaries)
 
         return {
             crossingElements: this.elementsCrossingTrustBoundaries,

@@ -16,28 +16,45 @@ export default class TablesController {
 
     public parseOverviewTable(table: IOverviewTableRow[]): IThreatTableRow[][] {
         this.overviewTable = table;
-        let threatRows: IThreatTableRow[][] = [];
-
         this.overviewTable.forEach((element) => {
-            let elementThreatRows: IThreatTableRow[] = [];
-            for (const [key, value] of Object.entries(element.threat)) {
-                if (value) {
-                    const threatRow: IThreatTableRow = {
-                        type: "ThreatRow",
-                        threatId: crypto.randomUUID(),
-                        dataflowEnumeration: element.dataflowEnumeration,
-                        strideType: key,
-                        threat: "",
-                        mitigation: "",
-                        validation: "",
-                        added: false
-                    };
-                    elementThreatRows.push(threatRow);
+            element.crossingElement.crossingTrustBoundaries.forEach((trustBoundary) => {
+                let trustBoundaryThreatRows: IThreatTableRow[] = [];
+                for (const [key, value] of Object.entries(element.threat)) {
+                    if (value) {
+                        const threatRow: IThreatTableRow = {
+                            type: "ThreatRow",
+                            threatId: crypto.randomUUID(),
+                            dataflowEnumeration: element.dataflowEnumeration,
+                            strideType: key,
+                            threat: "",
+                            mitigation: "",
+                            validation: "",
+                            trustBoundaryId: trustBoundary.id,
+                            trustBoundaryName: trustBoundary.name,
+                            added: false
+                        };
+                        trustBoundaryThreatRows.push(threatRow);
+                    }
                 }
-            }
-            this.threatTables.push(elementThreatRows);
+
+                // Check if this.threatTables already contains a subarray with the same trustBoundaryId
+                let existingTable = this.threatTables.find(table =>
+                    table.some(row => row.trustBoundaryId === trustBoundary.id)
+                );
+
+                if (existingTable) {
+                    // If exists, navigate to the appropriate subarray
+                    console.log("pushing to existing table", existingTable);
+                    existingTable.push(...trustBoundaryThreatRows);
+                    console.log(existingTable);
+                } else {
+                    // If not exists, push the new trustBoundaryThreatRows
+                    this.threatTables.push(trustBoundaryThreatRows);
+                }
+            });
         });
         this.saveTable(this.overviewTable, "OverviewTable");
+        console.log(this.threatTables);
         return this.threatTables;
     }
 

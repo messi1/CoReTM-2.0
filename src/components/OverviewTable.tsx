@@ -33,7 +33,8 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
                 I: false,
                 D: false,
                 E: false
-            }
+            },
+            crossingElement: element
         }));
         setOverviewTable(tableData);
     }, [crossingElements]);

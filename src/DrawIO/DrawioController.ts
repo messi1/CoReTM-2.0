@@ -11,7 +11,7 @@ export default class DrawioController {
     private drawio: CORSCommunicator;
     private storage: LocalStorageModel;
     private diagramAnalyser: DiagramAnalyser;
-    private diagramExportPng: string;
+    private diagramImageBase64: string;
     private projectName: string;
 
     constructor(drawio: CORSCommunicator, storage: LocalStorageModel, projectName: string) {
@@ -19,7 +19,7 @@ export default class DrawioController {
         this.storage = storage
         this.diagramAnalyser = new DiagramAnalyser();
         this.projectName = projectName;
-        this.diagramExportPng = "";
+        this.diagramImageBase64 = "";
         this.drawio.receive(this.handleIncomingEvents.bind(this))
     }
 
@@ -166,16 +166,19 @@ export default class DrawioController {
     private exportDiagram() {
         const exportAction = {
             action: 'export',
-            format: 'png'
+            format: 'svg'
         }
         this.drawio.send(exportAction)
     }
 
     private storeDiagram(msg: any) : any {
-        this.diagramExportPng = msg.data
+        this.diagramImageBase64 = msg.data
         this.storage.write({
-            data: JSON.stringify(this.diagramExportPng)
-        }, "DrawioExport")
+            data: JSON.stringify(this.diagramImageBase64)
+        }, "DrawioImage")
+        var image = new Image();
+        image.src = msg.data;
+        document.body.appendChild(image);
     }
 
     private autoSaveDiagram(msg: any) {

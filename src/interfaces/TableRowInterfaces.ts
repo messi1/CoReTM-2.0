@@ -1,3 +1,5 @@
+import {ICrossingElements} from "./DrawioInterfaces";
+
 export interface IOverviewTableRow {
     type: string,
     dataflowEnumeration: number,
@@ -10,7 +12,8 @@ export interface IOverviewTableRow {
         I: boolean,
         D: boolean,
         E: boolean
-    }
+    },
+    crossingElement: ICrossingElements
 }
 
 export interface IThreatTableRow {
@@ -21,5 +24,7 @@ export interface IThreatTableRow {
     threat: string,
     mitigation: string,
     validation: string,
+    trustBoundaryId: number,
+    trustBoundaryName: string,
     added: boolean
 }

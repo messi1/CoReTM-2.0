@@ -39,5 +39,6 @@ export interface ICrossingElements {
     elements: {
         sourceElement: IElement,
         targetElement: IElement
-    }
+    },
+    crossingTrustBoundaries: Array<ITrustBoundary>
 }

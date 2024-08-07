@@ -74,6 +74,8 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
             threat: "",
             mitigation: "",
             validation: "",
+            trustBoundaryId: currentRow.trustBoundaryId,
+            trustBoundaryName: currentRow.trustBoundaryName,
             added: true
         };
 
