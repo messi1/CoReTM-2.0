@@ -5,6 +5,8 @@ import {
     IElement, ICrossingElements
 } from "../interfaces/DrawioInterfaces";
 
+
+
 export default class DiagramAnalyser {
     private diagramElements: IDiagram;
     private elementsCrossingTrustBoundaries: ICrossingElements[];
