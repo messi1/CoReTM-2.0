@@ -12,7 +12,7 @@ function Model() {
     let [submitted, setSubmitted] = useState(false)
 
     useEffect(() => {
-        const projectName = localStorage.getItem("projectName")
+        const projectName = localStorage.getItem("ProjectName")
         if (projectName) {
             setProjectName(projectName)
             setSubmitted(true)
@@ -27,7 +27,7 @@ function Model() {
 
     const handleProjectNameChange = (value: string) => {
         setProjectName(value)
-        localStorage.setItem("projectName", value)
+        localStorage.setItem("ProjectName", value)
     }
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

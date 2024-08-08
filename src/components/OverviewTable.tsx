@@ -21,22 +21,27 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
 
 
     useEffect(() => {
-        const tableData = crossingElements.map((element) => ({
-            type: "OverviewRow",
-            dataflowEnumeration: element.dataflow.enumeration,
-            interaction: `${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`,
-            description: "",
-            threat: {
-                S: false,
-                T: false,
-                R: false,
-                I: false,
-                D: false,
-                E: false
-            },
-            crossingElement: element
-        }));
-        setOverviewTable(tableData);
+        const importTableData = localStorage.getItem("OverviewTable");
+        if (importTableData && crossingElements.length === JSON.parse(importTableData).length) {
+            setOverviewTable(JSON.parse(importTableData));
+        } else {
+            const tableData = crossingElements.map((element) => ({
+                type: "OverviewRow",
+                dataflowEnumeration: element.dataflow.enumeration,
+                interaction: `${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`,
+                description: "",
+                threat: {
+                    S: false,
+                    T: false,
+                    R: false,
+                    I: false,
+                    D: false,
+                    E: false
+                },
+                crossingElement: element
+            }));
+            setOverviewTable(tableData);
+        }
     }, [crossingElements]);
 
 
@@ -82,48 +87,54 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {crossingElements.map((element, index) => (
+                            {overviewTable.map((row, index) => (
                                 <TableRow key={index}>
-                                    <TableCell align="center">{element.dataflow.enumeration}</TableCell>
+                                    <TableCell align="center">{row.dataflowEnumeration}</TableCell>
                                     <TableCell
-                                        align="center">{`${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`}</TableCell>
+                                        align="center">{row.interaction}</TableCell>
                                     <TableCell align="center">
                                         <TextField
                                             size='small'
                                             variant="outlined"
                                             placeholder="write here ..."
-                                            value={overviewTable[index]?.description || ''}
+                                            value={row.description || ''}
                                             onChange={(event) => handleDescriptionChange(index, event.target.value)}/>
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
-                                            defaultChecked={false}
-                                            onChange={() => handleCheckboxChange(index, 'S', !overviewTable[index].threat.S)}/>
+                                            checked={row.threat.S}
+                                            onChange={(event) => handleCheckboxChange(index, 'S', event.target.checked)}
+                                        />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
-                                            defaultChecked={false}
-                                            onChange={() => handleCheckboxChange(index, 'T', !overviewTable[index].threat.T)}/>
+                                            checked={row.threat.T}
+                                            onChange={(event) => handleCheckboxChange(index, 'T', event.target.checked)}
+                                        />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
-                                            defaultChecked={false}
-                                            onChange={() => handleCheckboxChange(index, 'R', !overviewTable[index].threat.R)}/>
+                                            checked={row.threat.R}
+                                            onChange={(event) => handleCheckboxChange(index, 'R', event.target.checked)}
+                                        />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
-                                            defaultChecked={false}
-                                            onChange={() => handleCheckboxChange(index, 'I', !overviewTable[index].threat.I)}/>
+                                            checked={row.threat.I}
+                                            onChange={(event) => handleCheckboxChange(index, 'I', event.target.checked)}
+                                        />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
-                                            defaultChecked={false}
-                                            onChange={() => handleCheckboxChange(index, 'D', !overviewTable[index].threat.D)}/>
+                                            checked={row.threat.D}
+                                            onChange={(event) => handleCheckboxChange(index, 'D', event.target.checked)}
+                                        />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
-                                            defaultChecked={false}
-                                            onChange={() => handleCheckboxChange(index, 'E', !overviewTable[index].threat.E)}/>
+                                            checked={row.threat.E}
+                                            onChange={(event) => handleCheckboxChange(index, 'E', event.target.checked)}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}

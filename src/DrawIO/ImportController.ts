@@ -14,6 +14,7 @@ export default class ImportController {
 
             if (parsedData.ProjectName) {
                 console.log("ProjectName:", parsedData.ProjectName);
+                localStorage.setItem('ProjectName', parsedData.ProjectName);
             }
 
             if (parsedData.Diagram) {
@@ -23,14 +24,14 @@ export default class ImportController {
                     alert("Failed to parse the Diagram XML. Please upload a valid model.");
                     return { success: false };
                 }
-
-                const diagram = parsedData.Diagram
+                localStorage.setItem('DrawioMsg', JSON.stringify({ xml: parsedData.Diagram }));
                 console.log("Diagram:", xmlDoc);
             }
 
             if (parsedData.OverviewTable) {
                 console.log("OverviewTable:", parsedData.OverviewTable);
                 const overviewTable = JSON.parse(parsedData.OverviewTable);
+                localStorage.setItem('OverviewTable', JSON.stringify(overviewTable));
                 console.log("OverviewTable:", overviewTable);
             }
 

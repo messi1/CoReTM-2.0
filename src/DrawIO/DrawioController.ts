@@ -41,6 +41,7 @@ export default class DrawioController {
             return
         }
         const msg = JSON.parse(message.data);
+        console.log('Received message:', msg);
 
         switch (msg.event) {
             case 'autosave':

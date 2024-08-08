@@ -57,7 +57,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
         }
     }, [initialized, projectName, sendDiagram]);
 
-    function handleClickAnalyseEvent() {
+    function handleClickNextButton() {
         const {crossingElements, invalidDataflows} = drawioController!.parseXml();
         setCrossingElements(crossingElements);
         if (crossingElements.length > 0) {
@@ -112,17 +112,19 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
                     title="draw.io"
                     />
                 ) : (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                         <img src={drawioImage!.src} alt="Dataflow Diagram" style={{
                             maxWidth: '100%',
                             maxHeight: '100%',
                             height: 'auto',
                             width: 'auto',
                         }} />
+                    </Box>
                     )
                 }
                 {!showOverviewTable &&
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
-                        <Button variant="contained" color="secondary" onClick={handleClickAnalyseEvent}>Analyse</Button>
+                        <Button variant="contained" color="secondary" onClick={handleClickNextButton}>Next</Button>
                     </Box>
                 }
                 {showOverviewTable &&

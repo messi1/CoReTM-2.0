@@ -4,12 +4,13 @@ import Paper from "@mui/material/Paper";
 import { Box, Button, Grid, Stack, Typography, TextField } from "@mui/material";
 import theme from "../utils/theme";
 import { ThemeProvider } from "@mui/material/styles";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import ImportController from "../DrawIO/ImportController";
 
 export default function Import() {
     const [file, setFile] = useState<File | null>(null);
     const [fileContent, setFileContent] = useState<string>("");
+    const navigate = useNavigate();
     const importController = new ImportController();
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,8 +23,10 @@ export default function Import() {
                 const result = importController.parseFile(event.target?.result as string);
                 if (result.success) {
                     alert("File parsed successfully.");
+                    navigate("/model");
                 } else {
                     alert("Failed to parse the file. Please upload a valid model.");
+                    navigate("/");
                 }
             };
             reader.readAsText(uploadedFile);
