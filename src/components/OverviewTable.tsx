@@ -49,12 +49,14 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
         const updatedData = [...overviewTable];
         updatedData[index].description = value;
         setOverviewTable(updatedData);
+        localStorage.setItem("OverviewTable", JSON.stringify(updatedData));
     };
 
     const handleCheckboxChange = (index: number, field: 'S' | 'T' | 'R' | 'I' | 'D' | 'E', value: boolean) => {
         const updatedData = [...overviewTable];
         updatedData[index].threat[field] = value as boolean;
         setOverviewTable(updatedData);
+        localStorage.setItem("OverviewTable", JSON.stringify(updatedData));
     };
 
     const handleSave = () => {

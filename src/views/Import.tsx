@@ -22,7 +22,6 @@ export default function Import() {
             reader.onload = (event) => {
                 const result = importController.parseFile(event.target?.result as string);
                 if (result.success) {
-                    alert("File parsed successfully.");
                     navigate("/model");
                 } else {
                     alert("Failed to parse the file. Please upload a valid model.");

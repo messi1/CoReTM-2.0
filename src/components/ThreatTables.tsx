@@ -19,6 +19,15 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
     const lookupMapRef = useRef<Record<string, IThreatTableRow>>({});
 
     useEffect(() => {
+        const importedThreatTables = localStorage.getItem("ThreatTables");
+        if (importedThreatTables) {
+            const parsedTables = JSON.parse(importedThreatTables);
+            console.log("parsed tables",parsedTables);
+            if (parsedTables.length === threatTables.length && parsedTables.every((table: IThreatTableRow[], index: number) => table.length === threatTables[index].length)) {
+                setThreatTable(parsedTables);
+            }
+        }
+
         const generateLookupMap = (table: IThreatTableRow[][]) => {
             const map: Record<string, IThreatTableRow> = {};
             table.forEach((rows) => {
@@ -29,7 +38,7 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
             return map;
         };
         lookupMapRef.current = generateLookupMap(threatTable);
-    });
+    }, [threatTables]);
 
     const handleThreatChange = (index: number, threatId: string, value: string): void => {
         setThreatTable((prev) => {

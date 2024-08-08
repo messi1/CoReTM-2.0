@@ -13,7 +13,6 @@ export default class ImportController {
             }
 
             if (parsedData.ProjectName) {
-                console.log("ProjectName:", parsedData.ProjectName);
                 localStorage.setItem('ProjectName', parsedData.ProjectName);
             }
 
@@ -25,20 +24,16 @@ export default class ImportController {
                     return { success: false };
                 }
                 localStorage.setItem('DrawioMsg', JSON.stringify({ xml: parsedData.Diagram }));
-                console.log("Diagram:", xmlDoc);
             }
 
             if (parsedData.OverviewTable) {
-                console.log("OverviewTable:", parsedData.OverviewTable);
                 const overviewTable = JSON.parse(parsedData.OverviewTable);
                 localStorage.setItem('OverviewTable', JSON.stringify(overviewTable));
-                console.log("OverviewTable:", overviewTable);
             }
 
             if (parsedData.ThreatTables) {
-                console.log("ThreatTables:", parsedData.ThreatTables);
                 const threatTables = JSON.parse(parsedData.ThreatTables);
-                console.log("ThreatTables:", threatTables);
+                localStorage.setItem('ThreatTables', JSON.stringify(threatTables));
             }
             return { success: true, data: parsedData };
 
