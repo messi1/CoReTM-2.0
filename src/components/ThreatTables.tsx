@@ -19,12 +19,6 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
     const lookupMapRef = useRef<Record<string, IThreatTableRow>>({});
 
     useEffect(() => {
-        const importedThreatTables = localStorage.getItem("ThreatTables");
-        if (importedThreatTables) {
-            const parsedTables = JSON.parse(importedThreatTables);
-                setThreatTable(parsedTables);
-        }
-
         const generateLookupMap = (table: IThreatTableRow[][]) => {
             const map: Record<string, IThreatTableRow> = {};
             table.forEach((rows) => {
@@ -34,40 +28,49 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
             });
             return map;
         };
-        lookupMapRef.current = generateLookupMap(threatTable);
+
+        const importedThreatTables = localStorage.getItem("ThreatTables");
+        if (importedThreatTables) {
+            const parsedTables = JSON.parse(importedThreatTables);
+                setThreatTable(parsedTables);
+                lookupMapRef.current = generateLookupMap(parsedTables);
+        } else {
+            lookupMapRef.current = generateLookupMap(threatTable);
+        }
     }, [threatTables]);
 
-    const handleThreatChange = (index: number, threatId: string, value: string): void => {
-        setThreatTable((prev) => {
-            const newTable = [...prev];
-            const key = threatId;
-            if (lookupMapRef.current[key]) {
-                lookupMapRef.current[key].threat = value;
+    const updateThreatTable = (index: number, threatId: string, field: string, value: string): void => {
+        const newTable = [...threatTable];
+        const key = threatId;
+        if (lookupMapRef.current[key]) {
+            switch (field) {
+                case 'threat':
+                    lookupMapRef.current[key].threat= value;
+                    break;
+                case 'mitigation':
+                    lookupMapRef.current[key].mitigation= value;
+                    break;
+                case 'validation':
+                    lookupMapRef.current[key].validation= value;
+                    break;
+                default:
+                    break;
             }
-            return newTable;
-        });
+        }
+        setThreatTable(newTable);
+        localStorage.setItem("ThreatTables", JSON.stringify(newTable));
+    }
+
+    const handleThreatChange = (index: number, threatId: string, value: string): void => {
+        updateThreatTable(index, threatId, 'threat', value);
     };
 
     const handleMitigationChange = (index: number, threatId: string, value: string): void => {
-        setThreatTable((prev) => {
-            const newTable = [...prev];
-            const key = threatId;
-            if (lookupMapRef.current[key]) {
-                lookupMapRef.current[key].mitigation = value;
-            }
-            return newTable;
-        });
+        updateThreatTable(index, threatId, 'mitigation', value);
     };
 
     const handleValidationChange = (index: number, threatId: string, value: string): void => {
-        setThreatTable((prev) => {
-            const newTable = [...prev];
-            const key = threatId;
-            if (lookupMapRef.current[key]) {
-                lookupMapRef.current[key].validation = value;
-            }
-            return newTable;
-        });
+        updateThreatTable(index, threatId, 'validation', value);
     };
 
     const handleAddRow = (index: number, rowIndex: number) => {
@@ -112,7 +115,6 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
             ];
             return newTable;
         });
-
         lookupMapRef.current[newThreatId] = newRow;
     };
 

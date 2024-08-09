@@ -26,12 +26,12 @@ export default class ImportController {
                 localStorage.setItem('DrawioMsg', JSON.stringify({ xml: parsedData.Diagram }));
             }
 
-            if (parsedData.OverviewTable) {
+            if (parsedData.OverviewTable !== "[]") {
                 const overviewTable = JSON.parse(parsedData.OverviewTable);
                 localStorage.setItem('OverviewTable', JSON.stringify(overviewTable));
             }
 
-            if (parsedData.ThreatTables) {
+            if (parsedData.ThreatTables !== "[]") {
                 const threatTables = JSON.parse(parsedData.ThreatTables);
                 localStorage.setItem('ThreatTables', JSON.stringify(threatTables));
             }

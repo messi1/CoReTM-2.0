@@ -13,6 +13,7 @@ import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableRowInterfac
 import ThreatTables from "./ThreatTables";
 import theme from "../utils/theme";
 import {ThemeProvider} from "@mui/material/styles";
+import {Link} from "react-router-dom";
 
 interface DrawIOProps {
     sendDiagram: (diagram: string | null) => void;
@@ -33,6 +34,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     let [showOverviewTable, setShowOverviewTable] = useState(false);
     let [showThreatTable, setShowThreatTable] = useState(false);
     let [showDownloadButton, setShowDownloadButton] = useState(false);
+    let [downloadClicked, setDownloadClicked] = useState(false);
 
     useEffect(() => {
         if (!initialized) {
@@ -98,6 +100,11 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
         link.click();
 
         URL.revokeObjectURL(link.href);
+        setDownloadClicked(true);
+    }
+
+    function clearLocalStorage() {
+        localStorage.clear()
     }
 
     return (
@@ -137,11 +144,18 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
                 {showThreatTable &&
                     <ThreatTables threatTables={tablesController!.getThreatTables()} onSave={handleSaveThreatTable}/>
                 }
-                {showDownloadButton &&
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', marginBottom: '8px' }}>
-                        <Button variant="contained" color="secondary" onClick={downloadLocalStorageAsJSON}>Download</Button>
-                    </Box>
-                }
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', marginBottom: '8px', gap: '8px' }}>
+                    <Button variant="contained" color="secondary" onClick={downloadLocalStorageAsJSON}>
+                            Download
+                    </Button>
+                    {downloadClicked && (
+                        <Link to={"/"} style={{ textDecoration: 'none' }}>
+                            <Button variant="contained" color="secondary" onClick={clearLocalStorage}>
+                                Home
+                            </Button>
+                        </Link>
+                    )}
+                </Box>
             </Box>
         </ThemeProvider>
     );
