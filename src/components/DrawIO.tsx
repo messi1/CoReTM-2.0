@@ -75,6 +75,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     }
 
     function handleSaveThreatTable(data: IThreatTableRow[][]){
+        console.log("handleSaveThreatTable called"); // Add this line for debugging
         tablesController!.setThreatTables(data);
         setShowDownloadButton(true);
     }

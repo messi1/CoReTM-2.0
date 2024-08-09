@@ -22,10 +22,7 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
         const importedThreatTables = localStorage.getItem("ThreatTables");
         if (importedThreatTables) {
             const parsedTables = JSON.parse(importedThreatTables);
-            console.log("parsed tables",parsedTables);
-            if (parsedTables.length === threatTables.length && parsedTables.every((table: IThreatTableRow[], index: number) => table.length === threatTables[index].length)) {
                 setThreatTable(parsedTables);
-            }
         }
 
         const generateLookupMap = (table: IThreatTableRow[][]) => {
@@ -74,10 +71,27 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
     };
 
     const handleAddRow = (index: number, rowIndex: number) => {
-        const currentRow = threatTable[index][rowIndex];
+        const currentRow : IThreatTableRow = threatTable[index][rowIndex];
+        const baseId : string = currentRow.threatId;
+        const existingRows : IThreatTableRow[] = threatTable[index];
+        const subArray : IThreatTableRow[] = existingRows.filter(row => row.threatId.startsWith(baseId))
+        const length : number = subArray.length
+
+        let newIndex : number;
+        if (length > 1) {
+            const id : string = subArray[1].threatId;
+            const parts : string[] = id.split('.');
+            const numberAfterDot : number = parseFloat(parts[1]);
+            newIndex = numberAfterDot + 1;
+        } else {
+            newIndex = 1;
+        }
+
+        const newThreatId = `${baseId}.${newIndex}`
+
         const newRow: IThreatTableRow = {
             type: "ThreatRow",
-            threatId: crypto.randomUUID(),
+            threatId: newThreatId,
             dataflowEnumeration: currentRow.dataflowEnumeration,
             strideType: currentRow.strideType,
             threat: "",
@@ -90,14 +104,16 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
 
         setThreatTable((prev) => {
             const newTable = [...prev];
+            const insertionIndex = rowIndex + 1;
             newTable[index] = [
-                ...newTable[index].slice(0, rowIndex + 1),
+                ...newTable[index].slice(0, insertionIndex),
                 newRow,
-                ...newTable[index].slice(rowIndex + 1),
+                ...newTable[index].slice(insertionIndex),
             ];
             return newTable;
         });
-        lookupMapRef.current[`${newRow.threatId}`] = newRow;
+
+        lookupMapRef.current[newThreatId] = newRow;
     };
 
 

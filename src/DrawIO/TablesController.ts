@@ -16,14 +16,14 @@ export default class TablesController {
 
     public parseOverviewTable(table: IOverviewTableRow[]): IThreatTableRow[][] {
         this.overviewTable = table;
-        this.overviewTable.forEach((element) => {
+        this.overviewTable.forEach((element, index) => {
             element.crossingElement.crossingTrustBoundaries.forEach((trustBoundary) => {
                 let trustBoundaryThreatRows: IThreatTableRow[] = [];
                 for (const [key, value] of Object.entries(element.threat)) {
                     if (value) {
                         const threatRow: IThreatTableRow = {
                             type: "ThreatRow",
-                            threatId: crypto.randomUUID(),
+                            threatId: index + "-" + key + "-" + element.dataflowEnumeration,
                             dataflowEnumeration: element.dataflowEnumeration,
                             strideType: key,
                             threat: "",
@@ -31,11 +31,12 @@ export default class TablesController {
                             validation: "",
                             trustBoundaryId: trustBoundary.id,
                             trustBoundaryName: trustBoundary.name,
-                            added: false
+                            added: false,
                         };
                         trustBoundaryThreatRows.push(threatRow);
                     }
                 }
+                index++;
 
                 // Check if this.threatTables already contains a subarray with the same trustBoundaryId
                 let existingTable = this.threatTables.find(table =>
@@ -44,9 +45,7 @@ export default class TablesController {
 
                 if (existingTable) {
                     // If exists, navigate to the appropriate subarray
-                    console.log("pushing to existing table", existingTable);
                     existingTable.push(...trustBoundaryThreatRows);
-                    console.log(existingTable);
                 } else {
                     // If not exists, push the new trustBoundaryThreatRows
                     this.threatTables.push(trustBoundaryThreatRows);
@@ -54,7 +53,6 @@ export default class TablesController {
             });
         });
         this.saveTable(this.overviewTable, "OverviewTable");
-        console.log(this.threatTables);
         return this.threatTables;
     }
 
