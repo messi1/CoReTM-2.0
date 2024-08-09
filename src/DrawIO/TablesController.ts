@@ -1,21 +1,42 @@
-import LocalStorageModel from "./LocalStorageModel";
 import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableRowInterfaces";
+import {ICrossingElements} from "../interfaces/DrawioInterfaces";
 
 
 export default class TablesController {
-    private storage: LocalStorageModel;
     private overviewTable: IOverviewTableRow[];
     private threatTables: IThreatTableRow[][];
 
 
-    constructor(storage: LocalStorageModel) {
-        this.storage = storage;
+    constructor() {
         this.overviewTable = [];
         this.threatTables = [];
     }
 
-    public parseOverviewTable(table: IOverviewTableRow[]): IThreatTableRow[][] {
-        this.overviewTable = table;
+    public createOverviewTableFromImport(importedOverviewTable : IOverviewTableRow[]) {
+        this.overviewTable = importedOverviewTable;
+    }
+
+    public createOverviewTableFromDrawio(crossingElements: ICrossingElements[]) {
+        this.overviewTable = crossingElements.map((element: ICrossingElements) => ({
+            type: "OverviewRow",
+            dataflowEnumeration: element.dataflow.enumeration,
+            interaction: `${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`,
+            description: "",
+            threat: {
+                S: false,
+                T: false,
+                R: false,
+                I: false,
+                D: false,
+                E: false
+            },
+            crossingElement: element
+        }));
+        return this.overviewTable;
+    }
+
+    public parseOverviewTable(overviewTable: IOverviewTableRow[]) : void {
+        this.overviewTable = overviewTable;
         this.overviewTable.forEach((element, index) => {
             element.crossingElement.crossingTrustBoundaries.forEach((trustBoundary) => {
                 let trustBoundaryThreatRows: IThreatTableRow[] = [];
@@ -52,22 +73,13 @@ export default class TablesController {
                 }
             });
         });
-        this.saveTable(this.overviewTable, "OverviewTable");
-        return this.threatTables;
-    }
-
-
-    private saveTable(table: IOverviewTableRow[] | IThreatTableRow[][] , type: "OverviewTable" | "ThreatTables") {
-        this.storage.write(JSON.stringify(table), type);
-    }
-
-    public setThreatTables(threatTables: IThreatTableRow[][]): void {
-        this.threatTables = threatTables;
-        this.storage.write(JSON.stringify(threatTables), "ThreatTables");
     }
 
     public getThreatTables(): IThreatTableRow[][] {
-       return this.threatTables;
+        return this.threatTables;
     }
 
+    public getOverviewTable(): IOverviewTableRow[] {
+        return this.overviewTable;
+    }
 }

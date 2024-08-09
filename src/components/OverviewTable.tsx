@@ -10,62 +10,62 @@ import TableContainer from "@mui/material/TableContainer";
 import theme from "../utils/theme";
 import {ThemeProvider} from "@mui/material/styles";
 
-import { ICrossingElements } from "../interfaces/DrawioInterfaces";
 import { IOverviewTableRow } from "../interfaces/TableRowInterfaces";
 
 
 
-export default function OverviewTable({ crossingElements, onSave }: { crossingElements: ICrossingElements[], onSave: (data: IOverviewTableRow[]) => void }) {
-    const [overviewTable, setOverviewTable] = useState<IOverviewTableRow[]>([]);
+export default function OverviewTable({ overviewTable, onSave, overviewTableImported } : {
+    overviewTable : IOverviewTableRow[],
+    onSave: (data: IOverviewTableRow[], importedOverviewTableChanged : boolean) => void,
+    overviewTableImported: boolean }) {
+
+    const [overviewTableState, setOverviewTableState] = useState<IOverviewTableRow[]>([]);
     const [saveClicked, setSaveClicked] = useState(false);
+    const [importedTableChanged, setImportedTableChanged] = useState(false);
 
 
     useEffect(() => {
-        const importTableData = localStorage.getItem("OverviewTable");
-        if (importTableData && crossingElements.length === JSON.parse(importTableData).length) {
-            setOverviewTable(JSON.parse(importTableData));
-        } else {
-            const tableData = crossingElements.map((element) => ({
-                type: "OverviewRow",
-                dataflowEnumeration: element.dataflow.enumeration,
-                interaction: `${element.elements.sourceElement.name} ➝ ${element.elements.targetElement.name}`,
-                description: "",
-                threat: {
-                    S: false,
-                    T: false,
-                    R: false,
-                    I: false,
-                    D: false,
-                    E: false
-                },
-                crossingElement: element
-            }));
-            setOverviewTable(tableData);
-        }
-    }, [crossingElements]);
+        setOverviewTableState(overviewTable);
+        console.log("Was the overview table imported: ->", overviewTableImported);
+    }, [overviewTable]);
 
 
     const handleDescriptionChange = (index: number, value: string) => {
-        const updatedData = [...overviewTable];
+        const updatedData = [...overviewTableState];
         updatedData[index].description = value;
-        setOverviewTable(updatedData);
+        setOverviewTableState(updatedData);
+        if (overviewTableImported) {
+            setImportedTableChanged(true);
+        }
         localStorage.setItem("OverviewTable", JSON.stringify(updatedData));
     };
 
     const handleCheckboxChange = (index: number, field: 'S' | 'T' | 'R' | 'I' | 'D' | 'E', value: boolean) => {
-        const updatedData = [...overviewTable];
+        const updatedData = [...overviewTableState];
         updatedData[index].threat[field] = value as boolean;
-        setOverviewTable(updatedData);
+        setOverviewTableState(updatedData);
+        if (overviewTableImported) {
+            setImportedTableChanged(true);
+        }
         localStorage.setItem("OverviewTable", JSON.stringify(updatedData));
     };
 
     const handleSave = () => {
-        const hasEmptyFields = overviewTable.some(row => row.description.trim() === '');
+        const hasEmptyFields = overviewTableState.some(row => row.description.trim() === '');
         if (hasEmptyFields) {
-            alert("Please fill in all descriptions before saving.");
+            alert("Please fill in all descriptions before continuing. If you wish to proceed later, you can save your progress by clicking on the download button.");
             return;
         }
-        onSave(overviewTable);
+
+        const hasAtleastOneThreat: boolean = overviewTableState.every(row => {
+            return row.threat.S || row.threat.T || row.threat.R || row.threat.I || row.threat.D || row.threat.E;
+        })
+
+        if (!hasAtleastOneThreat) {
+            alert("Please select at least one threat for each interaction before continuing. If you wish to proceed later, you can save your progress by clicking on the download button.");
+            return;
+        }
+        onSave(overviewTableState, importedTableChanged);
         setSaveClicked(true);
     };
 
@@ -89,7 +89,7 @@ export default function OverviewTable({ crossingElements, onSave }: { crossingEl
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {overviewTable.map((row, index) => (
+                            {overviewTableState.map((row, index) => (
                                 <TableRow key={index}>
                                     <TableCell align="center">{row.dataflowEnumeration}</TableCell>
                                     <TableCell

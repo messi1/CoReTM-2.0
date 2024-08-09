@@ -12,6 +12,8 @@ export default class ImportController {
                 return { success: false };
             }
 
+            localStorage.clear();
+
             if (parsedData.ProjectName) {
                 localStorage.setItem('ProjectName', parsedData.ProjectName);
             }
@@ -26,12 +28,12 @@ export default class ImportController {
                 localStorage.setItem('DrawioMsg', JSON.stringify({ xml: parsedData.Diagram }));
             }
 
-            if (parsedData.OverviewTable !== "[]") {
+            if (parsedData.OverviewTable && parsedData.OverviewTable !== "[]") {
                 const overviewTable = JSON.parse(parsedData.OverviewTable);
                 localStorage.setItem('OverviewTable', JSON.stringify(overviewTable));
             }
 
-            if (parsedData.ThreatTables !== "[]") {
+            if (parsedData.ThreatTables && parsedData.ThreatTables !== "[]") {
                 const threatTables = JSON.parse(parsedData.ThreatTables);
                 localStorage.setItem('ThreatTables', JSON.stringify(threatTables));
             }

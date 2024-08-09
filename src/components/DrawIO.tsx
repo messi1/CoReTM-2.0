@@ -20,20 +20,21 @@ interface DrawIOProps {
     projectName: string;
 }
 
-function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
+export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     let iframeRef = useRef<HTMLIFrameElement>(null);
     let [initialized, setInitialized] = useState(false);
 
     let [drawioController, setDrawioController] = useState<DrawioController | null>(null);
     let [tablesController, setTablesController] = useState<TablesController | null>(null);
-    let [crossingElements, setCrossingElements] = useState<ICrossingElements[] >([]);
     let [drawioImage, setDrawioImage] = useState<HTMLImageElement | null>(null);
+
+    let [overviewTable, setOverviewTable] = useState<IOverviewTableRow[]>([]);
+    let [overviewTableImported, setOverviewTableImported] = useState(false);
 
 
     let [showDrawio, setShowDrawio] = useState(true);
     let [showOverviewTable, setShowOverviewTable] = useState(false);
     let [showThreatTable, setShowThreatTable] = useState(false);
-    let [showDownloadButton, setShowDownloadButton] = useState(false);
     let [downloadClicked, setDownloadClicked] = useState(false);
 
     useEffect(() => {
@@ -43,7 +44,7 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
 
             const drawioView = new CORSCommunicator(iframeRef.current);
             const stateController = new DrawioController(drawioView, localStorageModel, projectName);
-            const tablesController = new TablesController(localStorageModel);
+            const tablesController = new TablesController();
             setTablesController(tablesController);
             setDrawioController(stateController)
 
@@ -60,26 +61,38 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     }, [initialized, projectName, sendDiagram]);
 
     function handleClickNextButton() {
-        const {crossingElements, invalidDataflows} = drawioController!.parseXml();
-        setCrossingElements(crossingElements);
-        if (crossingElements.length > 0) {
-            if (!invalidDataflows) {
-                setShowOverviewTable(true);
-            }
+        const importedOverviewTable = localStorage.getItem('OverviewTable');
+
+        if (!drawioController!.getChangedAfterImported() && importedOverviewTable) {
+            tablesController!.createOverviewTableFromImport(JSON.parse(importedOverviewTable));
+            setOverviewTableImported(true);
+            setOverviewTable(tablesController!.getOverviewTable());
+            console.log("Diagram did not change after import and OverviewTable is present");
+            setShowOverviewTable(true);
         } else {
-            alert("There are no dataflows crossing a trust boundary. Therefore STRIDE-per-Interaction cannot be applied.");
+            const {crossingElements, invalidDataflows} = drawioController!.parseXml();
+            if (crossingElements.length > 0) {
+                if (!invalidDataflows) {
+                    tablesController!.createOverviewTableFromDrawio(crossingElements);
+                    setOverviewTable(tablesController!.getOverviewTable());
+                    console.log("Diagram did change after import or overview table is not present");
+                    setShowOverviewTable(true);
+                }
+            } else {
+                alert("There are no dataflows crossing a trust boundary. Therefore STRIDE-per-Interaction cannot be applied.");
+            }
         }
     }
 
-    function handleSaveOverviewTable(data: IOverviewTableRow[]){
-        tablesController!.parseOverviewTable(data);
+    function handleSaveOverviewTable(overviewTable: IOverviewTableRow[], importedOverviewTableChanged: boolean){
+        if (importedOverviewTableChanged) {
+            console.log("Imported overview table was changed");
+            tablesController!.parseOverviewTable(overviewTable);
+        } else if (!overviewTableImported) {
+            console.log("Overview table was not imported");
+            tablesController!.parseOverviewTable(overviewTable);
+        }
         setShowThreatTable(true);
-    }
-
-    function handleSaveThreatTable(data: IThreatTableRow[][]){
-        console.log("handleSaveThreatTable called"); // Add this line for debugging
-        tablesController!.setThreatTables(data);
-        setShowDownloadButton(true);
     }
 
     function downloadLocalStorageAsJSON() {
@@ -137,12 +150,13 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
                 }
                 {showOverviewTable &&
                     <OverviewTable
-                        crossingElements={crossingElements}
+                        overviewTable={overviewTable}
                         onSave={handleSaveOverviewTable}
+                        overviewTableImported={overviewTableImported}
                     />
                 }
                 {showThreatTable &&
-                    <ThreatTables threatTables={tablesController!.getThreatTables()} onSave={handleSaveThreatTable}/>
+                    <ThreatTables threatTables={tablesController!.getThreatTables()}/>
                 }
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', marginBottom: '8px', gap: '8px' }}>
                     <Button variant="contained" color="secondary" onClick={downloadLocalStorageAsJSON}>
@@ -160,5 +174,3 @@ function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
         </ThemeProvider>
     );
 }
-
-export default DrawIO;

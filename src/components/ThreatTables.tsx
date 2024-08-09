@@ -13,9 +13,8 @@ import theme from "../utils/theme";
 import AddCircleIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircleOutline";
 
-export default function ThreatTables({ threatTables, onSave }: { threatTables: IThreatTableRow[][], onSave: (data: IThreatTableRow[][]) => void }) {
+export default function ThreatTables({ threatTables }: { threatTables: IThreatTableRow[][] }) {
     const [threatTable, setThreatTable] = useState<IThreatTableRow[][]>(threatTables);
-    const [saveClicked, setSaveClicked] = useState(false);
     const lookupMapRef = useRef<Record<string, IThreatTableRow>>({});
 
     useEffect(() => {
@@ -128,21 +127,13 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
         });
     };
 
-    const handleSave = () => {
-        const hasEmptyFields = threatTable.some(rows => rows.some(row => row.threat.trim() === '' || row.mitigation.trim() === '' || row.validation.trim() === ''));
-        if (hasEmptyFields) {
-            alert("Please fill in all fields before saving.");
-            return;
-        }
-        onSave(threatTable);
-        setSaveClicked(true);
-    };
-
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ marginTop: '8px' }}>
                 <Typography variant={"h4"}>Threat Tables</Typography>
                 {threatTable.map((table, index) => (
+                    <>
+                    <Typography variant={"h5"}>{table[index].trustBoundaryName}</Typography>
                     <TableContainer key={index}>
                         <Table>
                             <TableHead>
@@ -158,6 +149,7 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
                             </TableHead>
                             <TableBody>
                                 {table.map((row, rowIndex) => (
+
                                     <TableRow key={row.threatId}>
                                         <TableCell align="center">{row.threatId}</TableCell>
                                         <TableCell align="center">{row.dataflowEnumeration}</TableCell>
@@ -202,12 +194,8 @@ export default function ThreatTables({ threatTables, onSave }: { threatTables: I
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    </>
                 ))}
-                {!saveClicked &&
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-                        <Button variant="contained" color="secondary" onClick={handleSave}>Save</Button>
-                    </Box>
-                }
             </Box>
         </ThemeProvider>
     );

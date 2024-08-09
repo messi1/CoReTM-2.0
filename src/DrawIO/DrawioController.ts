@@ -15,6 +15,10 @@ export default class DrawioController {
     private imageReadyCallback: ((image: HTMLImageElement) => void) | null = null;
     private projectName: string;
 
+    private loadedFromLocalStorage: boolean = false;
+    private changedAfterImported: boolean = false;
+
+
     constructor(drawio: CORSCommunicator, storage: LocalStorageModel, projectName: string) {
         this.drawio = drawio
         this.storage = storage
@@ -41,7 +45,6 @@ export default class DrawioController {
             return
         }
         const msg = JSON.parse(message.data);
-        console.log('Received message:', msg);
 
         switch (msg.event) {
             case 'autosave':
@@ -141,6 +144,7 @@ export default class DrawioController {
         const draft: any | null = this.storage.read("DrawioMsg");
 
         if (draft) {
+            this.loadedFromLocalStorage = true;
             const parsedDraft = JSON.parse(draft);
             let loadAction = {
                 action: 'load',
@@ -158,7 +162,8 @@ export default class DrawioController {
             let loadAction = {
                 "action": "load",
                 "autosave": 1,
-                "xml": "<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"2\" value=\"Note that &lt;u&gt;&lt;b&gt;only&lt;/b&gt;&lt;/u&gt; elements from the &lt;br&gt;CoReTM Library will be analysed.\" style=\"text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;overflow=hidden;\" vertex=\"1\" connectable=\"0\" parent=\"1\"><mxGeometry x=\"0\" y=\"0\" width=\"200\" height=\"50\" as=\"geometry\"/></mxCell></root></mxGraphModel>",
+                "xml": "",
+                    //"<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"2\" value=\"Note that &lt;u&gt;&lt;b&gt;only&lt;/b&gt;&lt;/u&gt; elements from the &lt;br&gt;CoReTM Library will be analysed.\" style=\"text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;overflow=hidden;\" vertex=\"1\" connectable=\"0\" parent=\"1\"><mxGeometry x=\"0\" y=\"0\" width=\"200\" height=\"50\" as=\"geometry\"/></mxCell></root></mxGraphModel>",
                 title: this.projectName
             };
             this.drawio.send(loadAction);
@@ -182,6 +187,13 @@ export default class DrawioController {
 
     private autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
+        if (this.loadedFromLocalStorage) {
+            this.changedAfterImported = true;
+        }
+    }
+
+    getChangedAfterImported() : boolean {
+        return this.changedAfterImported
     }
 
     setImageReadyCallback(callback: (image: HTMLImageElement) => void) {
