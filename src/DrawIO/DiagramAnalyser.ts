@@ -59,13 +59,7 @@ export default class DiagramAnalyser {
     }
 
     private checkIfSourceAndTargetExist(elementToAdd : any): boolean {
-        if (isNaN(elementToAdd.sourceId)) {
-            return false;
-        }
-        if (isNaN(elementToAdd.targetId)) {
-            return false;
-        }
-        return true;
+        return !isNaN(elementToAdd.targetId) && !isNaN(elementToAdd.sourceId);
     }
 
     private navigateElementToCorrectArray(elementToAdd: any, type: string) {
@@ -177,7 +171,9 @@ export default class DiagramAnalyser {
             i++;
         });
 
-        console.log(this.elementsCrossingTrustBoundaries)
+        console.log("crossing",this.elementsCrossingTrustBoundaries)
+        console.log("invalid DF",this.dataflowsWithoutSourceOrTarget)
+        console.log("are there invalid DFs", this.dataflowsWithoutSourceOrTarget.length > 0)
 
         return {
             crossingElements: this.elementsCrossingTrustBoundaries,

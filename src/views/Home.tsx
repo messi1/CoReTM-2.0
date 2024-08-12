@@ -9,7 +9,7 @@ function Home() {
     return (
         <ThemeProvider theme={theme}>
             <Grid container justifyContent="center" alignItems="center">
-                <Container maxWidth="md">
+                <Container>
                     <Box textAlign="center" sx={{ mb: 4 }}>
                         <Typography variant="h1" component="h1">
                             CoReTM 2.0

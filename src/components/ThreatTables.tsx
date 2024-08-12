@@ -6,7 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import { Box, Button, TextField, Typography, IconButton } from "@mui/material";
+import { Box, TextField, Typography, IconButton } from "@mui/material";
 import TableContainer from "@mui/material/TableContainer";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../utils/theme";
@@ -27,20 +27,13 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
             });
             return map;
         };
+        lookupMapRef.current = generateLookupMap(threatTable);
 
-        const importedThreatTables = localStorage.getItem("ThreatTables");
-        if (importedThreatTables) {
-            const parsedTables = JSON.parse(importedThreatTables);
-                setThreatTable(parsedTables);
-                lookupMapRef.current = generateLookupMap(parsedTables);
-        } else {
-            lookupMapRef.current = generateLookupMap(threatTable);
-        }
     }, [threatTables]);
 
-    const updateThreatTable = (index: number, threatId: string, field: string, value: string): void => {
-        const newTable = [...threatTable];
-        const key = threatId;
+    const updateThreatTable = (threatId: string, field: string, value: string): void => {
+        const newTable: IThreatTableRow[][] = [...threatTable];
+        const key: string = threatId;
         if (lookupMapRef.current[key]) {
             switch (field) {
                 case 'threat':
@@ -60,16 +53,16 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
         localStorage.setItem("ThreatTables", JSON.stringify(newTable));
     }
 
-    const handleThreatChange = (index: number, threatId: string, value: string): void => {
-        updateThreatTable(index, threatId, 'threat', value);
+    const handleThreatChange = (threatId: string, value: string): void => {
+        updateThreatTable(threatId, 'threat', value);
     };
 
-    const handleMitigationChange = (index: number, threatId: string, value: string): void => {
-        updateThreatTable(index, threatId, 'mitigation', value);
+    const handleMitigationChange = (threatId: string, value: string): void => {
+        updateThreatTable(threatId, 'mitigation', value);
     };
 
-    const handleValidationChange = (index: number, threatId: string, value: string): void => {
-        updateThreatTable(index, threatId, 'validation', value);
+    const handleValidationChange = (threatId: string, value: string): void => {
+        updateThreatTable(threatId, 'validation', value);
     };
 
     const handleAddRow = (index: number, rowIndex: number) => {
@@ -89,7 +82,7 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
             newIndex = 1;
         }
 
-        const newThreatId = `${baseId}.${newIndex}`
+        const newThreatId : string = `${baseId}.${newIndex}`
 
         const newRow: IThreatTableRow = {
             type: "ThreatRow",
@@ -105,8 +98,8 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
         };
 
         setThreatTable((prev) => {
-            const newTable = [...prev];
-            const insertionIndex = rowIndex + 1;
+            const newTable : IThreatTableRow[][] = [...prev];
+            const insertionIndex : number = rowIndex + 1;
             newTable[index] = [
                 ...newTable[index].slice(0, insertionIndex),
                 newRow,
@@ -120,7 +113,7 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
 
     const handleDeleteRow = (index: number, rowIndex: number) => {
         setThreatTable((prev) => {
-            const newTable = [...prev];
+            const newTable : IThreatTableRow[][] = [...prev];
             newTable[index] = newTable[index].filter((_, i) => i !== rowIndex);
             delete lookupMapRef.current[`${threatTable[index][rowIndex].threatId}`];
             return newTable;
@@ -130,71 +123,69 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
     return (
         <ThemeProvider theme={theme}>
             <Box sx={{ marginTop: '8px' }}>
-                <Typography variant={"h4"}>Threat Tables</Typography>
-                {threatTable.map((table, index) => (
-                    <>
-                    <Typography variant={"h5"}>{table[index].trustBoundaryName}</Typography>
-                    <TableContainer key={index}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat ID</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Dataflow</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>STRIDE Type</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Mitigation</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Validation</TableCell>
-                                    <TableCell></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {table.map((row, rowIndex) => (
-
-                                    <TableRow key={row.threatId}>
-                                        <TableCell align="center">{row.threatId}</TableCell>
-                                        <TableCell align="center">{row.dataflowEnumeration}</TableCell>
-                                        <TableCell align="center">{row.strideType}</TableCell>
-                                        <TableCell align="center">
-                                            <TextField
-                                                size="small"
-                                                variant="outlined"
-                                                placeholder="Describe threat"
-                                                value={row.threat}
-                                                onChange={(event) => handleThreatChange(index, row.threatId, event.target.value)} />
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            <TextField
-                                                size="small"
-                                                variant="outlined"
-                                                placeholder="Provide mitigation"
-                                                value={row.mitigation}
-                                                onChange={(event) => handleMitigationChange(index, row.threatId, event.target.value)} />
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            <TextField
-                                                size="small"
-                                                variant="outlined"
-                                                placeholder="Provide validation"
-                                                value={row.validation}
-                                                onChange={(event) => handleValidationChange(index, row.threatId, event.target.value)} />
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {!row.added ? (
-                                                <IconButton onClick={() => handleAddRow(index, rowIndex)}>
-                                                    <AddCircleIcon />
-                                                </IconButton>
-                                            ) : (
-                                                <IconButton onClick={() => handleDeleteRow(index, rowIndex)}>
-                                                    <RemoveCircleIcon />
-                                                </IconButton>
-                                            )}
-                                        </TableCell>
+                {threatTable.map((table: IThreatTableRow[], index: number) => (
+                    <React.Fragment key={index}>
+                        <Typography variant={"h5"}  sx={{marginTop: '8px'}}>{`Trust Boundary: ${table[index].trustBoundaryName}`}</Typography>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat ID</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Dataflow</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>STRIDE Type</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Mitigation</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Validation</TableCell>
+                                        <TableCell></TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    </>
+                                </TableHead>
+                                <TableBody>
+                                    {table.map((row : IThreatTableRow, rowIndex: number) => (
+                                        <TableRow key={row.threatId}>
+                                            <TableCell align="center">{row.threatId}</TableCell>
+                                            <TableCell align="center">{row.dataflowEnumeration}</TableCell>
+                                            <TableCell align="center">{row.strideType}</TableCell>
+                                            <TableCell align="center">
+                                                <TextField
+                                                    size="small"
+                                                    variant="outlined"
+                                                    placeholder="Describe threat"
+                                                    value={row.threat}
+                                                    onChange={(event) => handleThreatChange(row.threatId, event.target.value)} />
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <TextField
+                                                    size="small"
+                                                    variant="outlined"
+                                                    placeholder="Provide mitigation"
+                                                    value={row.mitigation}
+                                                    onChange={(event) => handleMitigationChange(row.threatId, event.target.value)} />
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <TextField
+                                                    size="small"
+                                                    variant="outlined"
+                                                    placeholder="Provide validation"
+                                                    value={row.validation}
+                                                    onChange={(event) => handleValidationChange(row.threatId, event.target.value)} />
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {!row.added ? (
+                                                    <IconButton onClick={() => handleAddRow(index, rowIndex)}>
+                                                        <AddCircleIcon />
+                                                    </IconButton>
+                                                ) : (
+                                                    <IconButton onClick={() => handleDeleteRow(index, rowIndex)}>
+                                                        <RemoveCircleIcon />
+                                                    </IconButton>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </React.Fragment>
                 ))}
             </Box>
         </ThemeProvider>

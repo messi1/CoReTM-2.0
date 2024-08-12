@@ -38,7 +38,7 @@ function Model() {
     return (
         <ThemeProvider theme={theme}>
             <Grid container justifyContent="center" alignItems="center">
-                <Container maxWidth="md">
+                <Container>
                     {!submitted ? (
                         <>
                         <Typography variant="h4" gutterBottom>

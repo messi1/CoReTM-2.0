@@ -4,8 +4,6 @@ import CORSCommunicator from '../DrawIO/CORSCommunicator';
 import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
 
-import { ICrossingElements } from "../interfaces/DrawioInterfaces";
-
 import {Box, Button} from "@mui/material";
 import OverviewTable from './OverviewTable';
 import TablesController from "../DrawIO/TablesController";
@@ -20,6 +18,11 @@ interface DrawIOProps {
     projectName: string;
 }
 
+/*
+* TODO
+*  - make interaction between overview table and threat tables dynamic
+*/
+
 export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     let iframeRef = useRef<HTMLIFrameElement>(null);
     let [initialized, setInitialized] = useState(false);
@@ -30,6 +33,7 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
 
     let [overviewTable, setOverviewTable] = useState<IOverviewTableRow[]>([]);
     let [overviewTableImported, setOverviewTableImported] = useState(false);
+    let [threatTables, setThreatTables] = useState<IThreatTableRow[][]>([]);
 
 
     let [showDrawio, setShowDrawio] = useState(true);
@@ -68,38 +72,65 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
             setOverviewTableImported(true);
             setOverviewTable(tablesController!.getOverviewTable());
             console.log("Diagram did not change after import and OverviewTable is present");
+            drawioController!.exportDiagram();
             setShowOverviewTable(true);
         } else {
+            console.log("Diagram did change after import or OverviewTable is not present");
             const {crossingElements, invalidDataflows} = drawioController!.parseXml();
             if (crossingElements.length > 0) {
+                console.log("Invalid dataflows: ", invalidDataflows);
                 if (!invalidDataflows) {
                     tablesController!.createOverviewTableFromDrawio(crossingElements);
                     setOverviewTable(tablesController!.getOverviewTable());
                     console.log("Diagram did change after import or overview table is not present");
+                    drawioController!.exportDiagram();
                     setShowOverviewTable(true);
                 }
             } else {
+                console.log("There are no dataflows crossing a trust boundary");
                 alert("There are no dataflows crossing a trust boundary. Therefore STRIDE-per-Interaction cannot be applied.");
             }
         }
     }
 
     function handleSaveOverviewTable(overviewTable: IOverviewTableRow[], importedOverviewTableChanged: boolean){
+        tablesController!.setOverviewTable(overviewTable);
+        const importedThreatTables = localStorage.getItem('ThreatTables');
         if (importedOverviewTableChanged) {
             console.log("Imported overview table was changed");
-            tablesController!.parseOverviewTable(overviewTable);
-        } else if (!overviewTableImported) {
-            console.log("Overview table was not imported");
-            tablesController!.parseOverviewTable(overviewTable);
+            setThreatTables(tablesController!.getThreatTables());
+            setShowThreatTable(true);
+        } else if (importedThreatTables && overviewTableImported) {
+            console.log("Threat tables were imported");
+            setThreatTables(JSON.parse(importedThreatTables));
+            setShowThreatTable(true);
+        } else {
+            console.log("Threat tables generated from overview table");
+            setThreatTables(tablesController!.getThreatTables());
+            setShowThreatTable(true);
         }
-        setShowThreatTable(true);
+
     }
 
     function downloadLocalStorageAsJSON() {
 
-        const localStorageData : any = {
+        const drawioMsg = localStorage.getItem('DrawioMsg');
+
+        let diagram = "";
+
+        if (drawioMsg) {
+            try {
+                const parsedMsg = JSON.parse(drawioMsg);
+                diagram = parsedMsg.xml || "";
+            } catch (e) {
+                console.error("Failed to parse DrawioMsg from localStorage:", e);
+                diagram = "";
+            }
+        }
+
+        const localStorageData: any = {
             'ProjectName': projectName,
-            'Diagram': JSON.parse(localStorage.getItem('DrawioMsg')!).xml,
+            'Diagram': diagram,
             'OverviewTable': localStorage.getItem('OverviewTable') || '[]',
             'ThreatTables': localStorage.getItem('ThreatTables') || '[]'
         }
@@ -156,7 +187,7 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
                     />
                 }
                 {showThreatTable &&
-                    <ThreatTables threatTables={tablesController!.getThreatTables()}/>
+                    <ThreatTables threatTables={threatTables} />
                 }
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', marginBottom: '8px', gap: '8px' }}>
                     <Button variant="contained" color="secondary" onClick={downloadLocalStorageAsJSON}>

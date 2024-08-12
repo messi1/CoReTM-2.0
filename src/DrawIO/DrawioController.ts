@@ -11,9 +11,10 @@ export default class DrawioController {
     private drawio: CORSCommunicator;
     private storage: LocalStorageModel;
     private diagramAnalyser: DiagramAnalyser;
-    private diagramImage: HTMLImageElement;
+    private readonly projectName: string;
+    private readonly diagramImage: HTMLImageElement;
     private imageReadyCallback: ((image: HTMLImageElement) => void) | null = null;
-    private projectName: string;
+
 
     private loadedFromLocalStorage: boolean = false;
     private changedAfterImported: boolean = false;
@@ -170,7 +171,7 @@ export default class DrawioController {
         }
     }
 
-    private exportDiagram() {
+    exportDiagram() {
         const exportAction = {
             action: 'export',
             format: 'svg'
@@ -187,6 +188,7 @@ export default class DrawioController {
 
     private autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
+        console.log(msg.xml)
         if (this.loadedFromLocalStorage) {
             this.changedAfterImported = true;
         }
@@ -208,7 +210,7 @@ export default class DrawioController {
         let xmlDoc : XMLDocument;
 
         if (xmlDataString) {
-            const parser = new DOMParser();
+            const parser : DOMParser = new DOMParser();
             try {
                 xmlDoc = parser.parseFromString(xml, "text/xml");
             }
@@ -217,9 +219,6 @@ export default class DrawioController {
             }
         }
         const {crossingElements, invalidDataflows} = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc!);
-        if (crossingElements.length > 0) {
-            this.exportDiagram()
-        }
 
         return {
             crossingElements: crossingElements,

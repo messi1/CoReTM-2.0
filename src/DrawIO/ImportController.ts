@@ -4,7 +4,7 @@
 export default class ImportController {
 
 
-    parseFile(fileContent: string): { success: boolean, data?: any } {
+    parseFile(fileContent: string): { success: boolean } {
         try {
             const parsedData = JSON.parse(fileContent);
             if (!parsedData) {
@@ -37,7 +37,7 @@ export default class ImportController {
                 const threatTables = JSON.parse(parsedData.ThreatTables);
                 localStorage.setItem('ThreatTables', JSON.stringify(threatTables));
             }
-            return { success: true, data: parsedData };
+            return { success: true };
 
         } catch (error) {
             console.error("Error parsing file:", error);

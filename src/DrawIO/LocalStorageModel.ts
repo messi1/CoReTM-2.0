@@ -1,5 +1,5 @@
 export default class LocalStorageModel {
-    private storageKey: string;
+    private readonly storageKey: string;
     private repo: Storage;
     private callbacks: ((event: StorageEvent) => void)[];
     constructor(storageKey = 'DrawioMsg') {

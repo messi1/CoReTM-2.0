@@ -81,6 +81,13 @@ const theme = createTheme({
                 },
             },
         },
+        MuiIconButton: {
+            styleOverrides: {
+                root: {
+                    color: '#f44336',
+                },
+            },
+        },
         MuiTableContainer: {
             styleOverrides: {
                 root: {

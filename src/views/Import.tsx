@@ -1,23 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import Container from "@mui/material/Container";
-import { Box, Button, Grid, Stack, Typography, TextField } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import theme from "../utils/theme";
 import { ThemeProvider } from "@mui/material/styles";
-import {Link, useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ImportController from "../DrawIO/ImportController";
 
 export default function Import() {
-    const [file, setFile] = useState<File | null>(null);
-    const [fileContent, setFileContent] = useState<string>("");
     const navigate = useNavigate();
     const importController = new ImportController();
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const uploadedFile = event.target.files?.[0] || null;
-        setFile(uploadedFile);
+        const uploadedFile : File | null = event.target.files?.[0] || null;
 
         if (uploadedFile) {
-            const reader = new FileReader();
+            const reader : FileReader = new FileReader();
             reader.onload = (event) => {
                 const result = importController.parseFile(event.target?.result as string);
                 if (result.success) {
@@ -34,7 +31,7 @@ export default function Import() {
     return (
         <ThemeProvider theme={theme}>
             <Grid container justifyContent="center" alignItems="center">
-                <Container maxWidth="md">
+                <Container>
                     <Box textAlign="center" sx={{ mb: 4 }}>
                         <Typography variant="h4" gutterBottom>
                             Import

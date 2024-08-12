@@ -5,7 +5,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import {Box, Button, Checkbox, TextField, Typography} from "@mui/material";
+import {Box, Button, Checkbox, TextField} from "@mui/material";
 import TableContainer from "@mui/material/TableContainer";
 import theme from "../utils/theme";
 import {ThemeProvider} from "@mui/material/styles";
@@ -26,7 +26,6 @@ export default function OverviewTable({ overviewTable, onSave, overviewTableImpo
 
     useEffect(() => {
         setOverviewTableState(overviewTable);
-        console.log("Was the overview table imported: ->", overviewTableImported);
     }, [overviewTable]);
 
 
@@ -71,8 +70,7 @@ export default function OverviewTable({ overviewTable, onSave, overviewTableImpo
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{marginTop: '8px'}}>
-                <Typography variant={"h4"}>Overview Table</Typography>
+            <Box sx={{marginTop: '16px'}}>
                 <TableContainer>
                     <Table>
                         <TableHead>

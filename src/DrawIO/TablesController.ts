@@ -35,7 +35,7 @@ export default class TablesController {
         return this.overviewTable;
     }
 
-    public parseOverviewTable(overviewTable: IOverviewTableRow[]) : void {
+    private parseOverviewTable(overviewTable: IOverviewTableRow[]) : IThreatTableRow[][] {
         this.overviewTable = overviewTable;
         this.overviewTable.forEach((element, index) => {
             element.crossingElement.crossingTrustBoundaries.forEach((trustBoundary) => {
@@ -73,13 +73,19 @@ export default class TablesController {
                 }
             });
         });
+        return this.threatTables
     }
 
     public getThreatTables(): IThreatTableRow[][] {
+        this.threatTables = this.parseOverviewTable(this.overviewTable)
         return this.threatTables;
     }
 
     public getOverviewTable(): IOverviewTableRow[] {
         return this.overviewTable;
+    }
+
+    public setOverviewTable(overviewTable: IOverviewTableRow[]) {
+        this.overviewTable = overviewTable;
     }
 }

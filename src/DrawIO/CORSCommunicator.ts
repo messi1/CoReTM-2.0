@@ -1,5 +1,5 @@
 export default class CORSCommunicator {
-    private target: HTMLIFrameElement | null;
+    private readonly target: HTMLIFrameElement | null;
 
     constructor(target: HTMLIFrameElement | null) {
         this.target = target;
