@@ -46,9 +46,6 @@ This project is a web application that allows users to either import existing mo
     npm run eject
     ```
     **Note**: This is a one-way operation. Once you eject, you can't go back!
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
 ## Usage
 1. **Importing a Model**:
