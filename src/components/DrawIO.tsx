@@ -18,10 +18,6 @@ interface DrawIOProps {
     projectName: string;
 }
 
-/*
-* TODO
-*  - make interaction between overview table and threat tables dynamic
-*/
 
 export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     let iframeRef = useRef<HTMLIFrameElement>(null);
