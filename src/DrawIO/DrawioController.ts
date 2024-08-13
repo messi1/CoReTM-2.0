@@ -188,7 +188,6 @@ export default class DrawioController {
 
     private autoSaveDiagram(msg: any) {
         this.storage.write(JSON.stringify(msg), 'DrawioMsg');
-        console.log(msg.xml)
         if (this.loadedFromLocalStorage) {
             this.changedAfterImported = true;
         }

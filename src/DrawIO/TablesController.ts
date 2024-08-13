@@ -59,16 +59,13 @@ export default class TablesController {
                 }
                 index++;
 
-                // Check if this.threatTables already contains a subarray with the same trustBoundaryId
                 let existingTable = this.threatTables.find(table =>
                     table.some(row => row.trustBoundaryId === trustBoundary.id)
                 );
 
                 if (existingTable) {
-                    // If exists, navigate to the appropriate subarray
                     existingTable.push(...trustBoundaryThreatRows);
                 } else {
-                    // If not exists, push the new trustBoundaryThreatRows
                     this.threatTables.push(trustBoundaryThreatRows);
                 }
             });
@@ -76,8 +73,33 @@ export default class TablesController {
         return this.threatTables
     }
 
-    public getThreatTables(): IThreatTableRow[][] {
+    public updateThreatTable(importedThreatTable: IThreatTableRow[][]) {
+        this.generateThreatTables()
+        importedThreatTable.forEach((table, tableIndex) => {
+            table.forEach((row) => {
+                const existingTable = this.threatTables[tableIndex];
+
+                if (existingTable) {
+                    const existingRow = existingTable.find(existingRow => existingRow.threatId === row.threatId);
+
+                    if (existingRow) {
+                        Object.assign(existingRow, row);
+                    } else {
+                        existingTable.push(row);
+                    }
+                } else {
+                    this.threatTables[tableIndex] = [row];
+                }
+            });
+        });
+    }
+
+    public generateThreatTables(): IThreatTableRow[][] {
         this.threatTables = this.parseOverviewTable(this.overviewTable)
+        return this.threatTables;
+    }
+
+    public getThreatTables(): IThreatTableRow[][] {
         return this.threatTables;
     }
 

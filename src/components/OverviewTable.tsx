@@ -104,36 +104,42 @@ export default function OverviewTable({ overviewTable, onSave, overviewTableImpo
                                         <Checkbox
                                             checked={row.threat.S}
                                             onChange={(event) => handleCheckboxChange(index, 'S', event.target.checked)}
+                                            disabled={saveClicked}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
                                             checked={row.threat.T}
                                             onChange={(event) => handleCheckboxChange(index, 'T', event.target.checked)}
+                                            disabled={saveClicked}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
                                             checked={row.threat.R}
                                             onChange={(event) => handleCheckboxChange(index, 'R', event.target.checked)}
+                                            disabled={saveClicked}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
                                             checked={row.threat.I}
                                             onChange={(event) => handleCheckboxChange(index, 'I', event.target.checked)}
+                                            disabled={saveClicked}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
                                             checked={row.threat.D}
                                             onChange={(event) => handleCheckboxChange(index, 'D', event.target.checked)}
+                                            disabled={saveClicked}
                                         />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
                                             checked={row.threat.E}
                                             onChange={(event) => handleCheckboxChange(index, 'E', event.target.checked)}
+                                            disabled={saveClicked}
                                         />
                                     </TableCell>
                                 </TableRow>

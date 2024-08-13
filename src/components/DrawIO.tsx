@@ -96,8 +96,14 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
     function handleSaveOverviewTable(overviewTable: IOverviewTableRow[], importedOverviewTableChanged: boolean){
         tablesController!.setOverviewTable(overviewTable);
         const importedThreatTables = localStorage.getItem('ThreatTables');
-        if (importedOverviewTableChanged) {
+        if (importedOverviewTableChanged && importedThreatTables) {
+            tablesController!.updateThreatTable(JSON.parse(importedThreatTables));
             console.log("Imported overview table was changed");
+            setThreatTables(tablesController!.getThreatTables());
+            setShowThreatTable(true);
+        } else if (importedOverviewTableChanged) {
+            console.log("Imported overview table was changed");
+            tablesController!.generateThreatTables()
             setThreatTables(tablesController!.getThreatTables());
             setShowThreatTable(true);
         } else if (importedThreatTables && overviewTableImported) {
@@ -106,6 +112,7 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
             setShowThreatTable(true);
         } else {
             console.log("Threat tables generated from overview table");
+            tablesController!.generateThreatTables()
             setThreatTables(tablesController!.getThreatTables());
             setShowThreatTable(true);
         }
