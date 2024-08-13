@@ -38,9 +38,10 @@ function Model() {
     return (
         <ThemeProvider theme={theme}>
             <Grid container justifyContent="center" alignItems="center">
-                <Container>
+
                     {!submitted ? (
-                        <>
+
+                        <Container maxWidth={"md"}>
                         <Typography variant="h4" gutterBottom>
                                 Provide a project name
                         </Typography>
@@ -60,13 +61,15 @@ function Model() {
                                 Submit
                             </Button>
                         </form>
-                        </>
+                        </Container>
                     ) : (
                         projectName.trim() !== "" && (
+                            <Container>
                             <DrawIO sendDiagram={receiveDiagram} projectName={projectName} />
+                            </Container>
                         )
                     )}
-                </Container>
+
             </Grid>
         </ThemeProvider>
     );

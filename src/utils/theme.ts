@@ -62,7 +62,9 @@ const theme = createTheme({
                     padding: '40px',
                     borderRadius: '8px',
                     backgroundColor: '#3f51b5',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                    width: '90%',
+                    height: '90%'
                 },
             },
         },
