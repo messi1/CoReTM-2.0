@@ -60,3 +60,8 @@ This project is a web application that allows users to either import existing mo
     - Provide the necessary details to create a new model.
     - Save the model and proceed with the analysis.
     - Export the threat model to a JSON.
+  
+## Known Issues
+1. **Browser**:
+    - This tool was developed using Google Chrome browser.
+    - Functionality and compatibility with other browsers is not guaranteed.
