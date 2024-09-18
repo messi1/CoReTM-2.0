@@ -1,41 +1,35 @@
-import React, {useEffect, useRef, useState} from 'react';
-
+import React, { useEffect, useRef, useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom"; // Importiere useNavigate
 import CORSCommunicator from '../DrawIO/CORSCommunicator';
 import LocalStorageModel from '../DrawIO/LocalStorageModel';
 import DrawioController from "../DrawIO/DrawioController";
-
-import {Box, Button} from "@mui/material";
 import OverviewTable from './OverviewTable';
 import TablesController from "../DrawIO/TablesController";
-import {IOverviewTableRow, IThreatTableRow} from "../interfaces/TableRowInterfaces";
+import { IOverviewTableRow, IThreatTableRow } from "../interfaces/TableRowInterfaces";
 import ThreatTables from "./ThreatTables";
 import theme from "../utils/theme";
-import {ThemeProvider} from "@mui/material/styles";
-import {Link} from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
 
 interface DrawIOProps {
     sendDiagram: (diagram: string | null) => void;
     projectName: string;
 }
 
-
 export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
-    let iframeRef = useRef<HTMLIFrameElement>(null);
-    let [initialized, setInitialized] = useState(false);
-
-    let [drawioController, setDrawioController] = useState<DrawioController | null>(null);
-    let [tablesController, setTablesController] = useState<TablesController | null>(null);
-    let [drawioImage, setDrawioImage] = useState<HTMLImageElement | null>(null);
-
-    let [overviewTable, setOverviewTable] = useState<IOverviewTableRow[]>([]);
-    let [overviewTableImported, setOverviewTableImported] = useState(false);
-    let [threatTables, setThreatTables] = useState<IThreatTableRow[][]>([]);
-
-
-    let [showDrawio, setShowDrawio] = useState(true);
-    let [showOverviewTable, setShowOverviewTable] = useState(false);
-    let [showThreatTable, setShowThreatTable] = useState(false);
-    let [downloadClicked, setDownloadClicked] = useState(false);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [initialized, setInitialized] = useState(false);
+    const [drawioController, setDrawioController] = useState<DrawioController | null>(null);
+    const [tablesController, setTablesController] = useState<TablesController | null>(null);
+    const [drawioImage, setDrawioImage] = useState<HTMLImageElement | null>(null);
+    const [overviewTable, setOverviewTable] = useState<IOverviewTableRow[]>([]);
+    const [overviewTableImported, setOverviewTableImported] = useState(false);
+    const [threatTables, setThreatTables] = useState<IThreatTableRow[][]>([]);
+    const [showDrawio, setShowDrawio] = useState(true);
+    const [showOverviewTable, setShowOverviewTable] = useState(false);
+    const [showThreatTable, setShowThreatTable] = useState(false);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const navigate = useNavigate(); // Verwende useNavigate
 
     useEffect(() => {
         if (!initialized) {
@@ -46,12 +40,12 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
             const stateController = new DrawioController(drawioView, localStorageModel, projectName);
             const tablesController = new TablesController();
             setTablesController(tablesController);
-            setDrawioController(stateController)
+            setDrawioController(stateController);
 
-            localStorageModel.observe(function(diagram: string) {
-                sendDiagram(diagram)
-            })
-            sendDiagram(localStorageModel.read())
+            localStorageModel.observe((diagram: string) => {
+                sendDiagram(diagram);
+            });
+            sendDiagram(localStorageModel.read());
 
             stateController.setImageReadyCallback((image) => {
                 setDrawioImage(image);
@@ -72,7 +66,7 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
             setShowOverviewTable(true);
         } else {
             console.log("Diagram did change after import or OverviewTable is not present");
-            const {crossingElements, invalidDataflows} = drawioController!.parseXml();
+            const { crossingElements, invalidDataflows } = drawioController!.parseXml();
             if (crossingElements.length > 0) {
                 console.log("Invalid dataflows: ", invalidDataflows);
                 if (!invalidDataflows) {
@@ -89,7 +83,7 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
         }
     }
 
-    function handleSaveOverviewTable(overviewTable: IOverviewTableRow[], importedOverviewTableChanged: boolean){
+    function handleSaveOverviewTable(overviewTable: IOverviewTableRow[], importedOverviewTableChanged: boolean) {
         tablesController!.setOverviewTable(overviewTable);
         const importedThreatTables = localStorage.getItem('ThreatTables');
         if (importedOverviewTableChanged && importedThreatTables) {
@@ -147,11 +141,12 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
         link.click();
 
         URL.revokeObjectURL(link.href);
-        setDownloadClicked(true);
     }
 
     function clearLocalStorage() {
-        localStorage.clear()
+        localStorage.clear();
+        setIsDialogOpen(false);
+        navigate("/"); // Navigiere nach dem Löschen
     }
 
     return (
@@ -159,51 +154,64 @@ export default function DrawIO({ sendDiagram, projectName }: DrawIOProps) {
             <Box sx={{ width: '100%', height: '100%' }}>
                 {showDrawio ? (
                     <iframe
-                    ref={iframeRef}
-                    width="100%"
-                    height="700"
-                    src="https://embed.diagrams.net/?embed=1&ui=dark&spin=1&proto=json&configure=1&noExitBtn=1&saveAndExit=0&noSaveBtn=1&noExitBtn=1"
-                    style={{ border: 'none' }}
-                    title="draw.io"
+                        ref={iframeRef}
+                        width="100%"
+                        height="700"
+                        src="https://embed.diagrams.net/?embed=1&ui=dark&spin=1&proto=json&configure=1&noExitBtn=1&saveAndExit=0&noSaveBtn=1&noExitBtn=1"
+                        style={{ border: 'none' }}
+                        title="draw.io"
                     />
                 ) : (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                        <img src={drawioImage!.src} alt="Dataflow Diagram" style={{
-                            maxWidth: '100%',
-                            maxHeight: '100%',
-                            height: 'auto',
-                            width: 'auto',
-                        }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <img
+                            src={drawioImage!.src}
+                            alt="Dataflow Diagram"
+                            style={{ maxWidth: '100%', maxHeight: '100%', height: 'auto', width: 'auto' }}
+                        />
                     </Box>
-                    )
-                }
-                {!showOverviewTable &&
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', marginBottom: '8px' }}>
-                        <Button variant="contained" color="secondary" onClick={handleClickNextButton}>Next</Button>
-                    </Box>
-                }
-                {showOverviewTable &&
+                )}
+                {showOverviewTable && (
                     <OverviewTable
                         overviewTable={overviewTable}
                         onSave={handleSaveOverviewTable}
                         overviewTableImported={overviewTableImported}
                     />
-                }
-                {showThreatTable &&
-                    <ThreatTables threatTables={threatTables} />
-                }
+                )}
+                {showThreatTable && <ThreatTables threatTables={threatTables} />}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', marginBottom: '8px', gap: '8px' }}>
-                    <Button variant="contained" color="secondary" onClick={downloadLocalStorageAsJSON}>
-                            Download
-                    </Button>
-                    {downloadClicked && (
-                        <Link to={"/"} style={{ textDecoration: 'none' }}>
-                            <Button variant="contained" color="secondary" onClick={clearLocalStorage}>
-                                Home
-                            </Button>
-                        </Link>
+                    {!showOverviewTable && (
+                        <Button variant="contained" color="secondary" onClick={handleClickNextButton}>
+                            Next
+                        </Button>
                     )}
+                    <Button variant="contained" color="secondary" onClick={downloadLocalStorageAsJSON}>
+                        Download
+                    </Button>
+                    <Button variant="contained" color="secondary" onClick={() => setIsDialogOpen(true)}>
+                        Home
+                    </Button>
                 </Box>
+                <Dialog
+                    open={isDialogOpen}
+                    onClose={() => setIsDialogOpen(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">{"Are you sure you want to leave?"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Please note you will lose all your current progress.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setIsDialogOpen(false)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={clearLocalStorage} color="primary" autoFocus>
+                            Yes, I'm sure
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Box>
         </ThemeProvider>
     );
