@@ -1,13 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import DrawIO from "../components/DrawIO";
 
 import Container from "@mui/material/Container";
-import {Box, Button, Grid, TextField, Typography} from "@mui/material";
-import {ThemeProvider} from "@mui/material/styles";
+import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import theme from "../utils/theme";
 
 function Model() {
-    let [diagram, setDiagram] = useState({})
     let [projectName, setProjectName] = useState("")
     let [submitted, setSubmitted] = useState(false)
 
@@ -18,12 +17,6 @@ function Model() {
             setSubmitted(true)
         }
     }, []);
-
-    const receiveDiagram = (diagram: string | null) => {
-        if (diagram) {
-            setDiagram(diagram);
-        }
-    };
 
     const handleProjectNameChange = (value: string) => {
         setProjectName(value)
@@ -39,11 +32,11 @@ function Model() {
         <ThemeProvider theme={theme}>
             <Grid container justifyContent="center" alignItems="center">
 
-                    {!submitted ? (
+                {!submitted ? (
 
-                        <Container maxWidth={"md"}>
+                    <Container maxWidth={"md"}>
                         <Typography variant="h4" gutterBottom>
-                                Provide a project name
+                            Provide a project name
                         </Typography>
                         <form onSubmit={handleSubmit}>
                             <Box mb={2}>
@@ -61,14 +54,14 @@ function Model() {
                                 Submit
                             </Button>
                         </form>
+                    </Container>
+                ) : (
+                    projectName.trim() !== "" && (
+                        <Container>
+                            <DrawIO sendDiagram={() => { }} projectName={projectName} />
                         </Container>
-                    ) : (
-                        projectName.trim() !== "" && (
-                            <Container>
-                            <DrawIO sendDiagram={receiveDiagram} projectName={projectName} />
-                            </Container>
-                        )
-                    )}
+                    )
+                )}
 
             </Grid>
         </ThemeProvider>

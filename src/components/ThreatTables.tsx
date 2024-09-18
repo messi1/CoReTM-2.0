@@ -37,13 +37,13 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
         if (lookupMapRef.current[key]) {
             switch (field) {
                 case 'threat':
-                    lookupMapRef.current[key].threat= value;
+                    lookupMapRef.current[key].threat = value;
                     break;
                 case 'mitigation':
-                    lookupMapRef.current[key].mitigation= value;
+                    lookupMapRef.current[key].mitigation = value;
                     break;
                 case 'validation':
-                    lookupMapRef.current[key].validation= value;
+                    lookupMapRef.current[key].validation = value;
                     break;
                 default:
                     break;
@@ -66,29 +66,28 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
     };
 
     const handleAddRow = (index: number, rowIndex: number) => {
-        const currentRow : IThreatTableRow = threatTable[index][rowIndex];
-        const baseId : string = currentRow.threatId;
-        const existingRows : IThreatTableRow[] = threatTable[index];
-        const subArray : IThreatTableRow[] = existingRows.filter(row => row.threatId.startsWith(baseId))
-        const length : number = subArray.length
+        const currentRow: IThreatTableRow = threatTable[index][rowIndex];
+        const baseId: string = currentRow.threatId;
+        const existingRows: IThreatTableRow[] = threatTable[index];
+        const subArray: IThreatTableRow[] = existingRows.filter(row => row.threatId.startsWith(baseId))
+        const length: number = subArray.length
 
-        let newIndex : number;
+        let newIndex: number;
         if (length > 1) {
-            const id : string = subArray[1].threatId;
-            const parts : string[] = id.split('.');
-            const numberAfterDot : number = parseFloat(parts[1]);
+            const id: string = subArray[1].threatId;
+            const parts: string[] = id.split('.');
+            const numberAfterDot: number = parseFloat(parts[1]);
             newIndex = numberAfterDot + 1;
         } else {
             newIndex = 1;
         }
 
-        const newThreatId : string = `${baseId}.${newIndex}`
+        const newThreatId: string = `${baseId}.${newIndex}`
 
         const newRow: IThreatTableRow = {
             type: "ThreatRow",
             threatId: newThreatId,
             dataflowEnumeration: currentRow.dataflowEnumeration,
-            strideType: currentRow.strideType,
             threat: "",
             mitigation: "",
             validation: "",
@@ -98,8 +97,8 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
         };
 
         setThreatTable((prev) => {
-            const newTable : IThreatTableRow[][] = [...prev];
-            const insertionIndex : number = rowIndex + 1;
+            const newTable: IThreatTableRow[][] = [...prev];
+            const insertionIndex: number = rowIndex + 1;
             newTable[index] = [
                 ...newTable[index].slice(0, insertionIndex),
                 newRow,
@@ -113,7 +112,7 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
 
     const handleDeleteRow = (index: number, rowIndex: number) => {
         setThreatTable((prev) => {
-            const newTable : IThreatTableRow[][] = [...prev];
+            const newTable: IThreatTableRow[][] = [...prev];
             newTable[index] = newTable[index].filter((_, i) => i !== rowIndex);
             delete lookupMapRef.current[`${threatTable[index][rowIndex].threatId}`];
             return newTable;
@@ -125,14 +124,13 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
             <Box sx={{ marginTop: '8px' }}>
                 {threatTable.map((table: IThreatTableRow[], index: number) => (
                     <React.Fragment key={index}>
-                        <Typography variant={"h5"}  sx={{marginTop: '8px'}}>{`Trust Boundary: ${table[index].trustBoundaryName}`}</Typography>
+                        <Typography variant={"h5"} sx={{ marginTop: '8px' }}>{`Trust Boundary: ${table[index].trustBoundaryName}`}</Typography>
                         <TableContainer>
                             <Table>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat ID</TableCell>
                                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Dataflow</TableCell>
-                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>STRIDE Type</TableCell>
                                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat</TableCell>
                                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Mitigation</TableCell>
                                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Validation</TableCell>
@@ -140,11 +138,10 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {table.map((row : IThreatTableRow, rowIndex: number) => (
+                                    {table.map((row: IThreatTableRow, rowIndex: number) => (
                                         <TableRow key={row.threatId}>
                                             <TableCell align="center">{row.threatId}</TableCell>
                                             <TableCell align="center">{row.dataflowEnumeration}</TableCell>
-                                            <TableCell align="center">{row.strideType}</TableCell>
                                             <TableCell align="center">
                                                 <TextField
                                                     size="small"

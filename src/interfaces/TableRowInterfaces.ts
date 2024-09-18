@@ -20,7 +20,6 @@ export interface IThreatTableRow {
     type: string,
     threatId: string,
     dataflowEnumeration: number,
-    strideType: string,
     threat: string,
     mitigation: string,
     validation: string,

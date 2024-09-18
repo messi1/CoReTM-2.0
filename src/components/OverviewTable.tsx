@@ -1,23 +1,24 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import {Box, Button, Checkbox, TextField} from "@mui/material";
+import { Box, Button, Checkbox, TextField } from "@mui/material";
 import TableContainer from "@mui/material/TableContainer";
 import theme from "../utils/theme";
-import {ThemeProvider} from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 
 import { IOverviewTableRow } from "../interfaces/TableRowInterfaces";
 
 
 
-export default function OverviewTable({ overviewTable, onSave, overviewTableImported } : {
-    overviewTable : IOverviewTableRow[],
-    onSave: (data: IOverviewTableRow[], importedOverviewTableChanged : boolean) => void,
-    overviewTableImported: boolean }) {
+export default function OverviewTable({ overviewTable, onSave, overviewTableImported }: Readonly<{
+    overviewTable: IOverviewTableRow[],
+    onSave: (data: IOverviewTableRow[], importedOverviewTableChanged: boolean) => void,
+    overviewTableImported: boolean
+}>) {
 
     const [overviewTableState, setOverviewTableState] = useState<IOverviewTableRow[]>([]);
     const [saveClicked, setSaveClicked] = useState(false);
@@ -70,20 +71,20 @@ export default function OverviewTable({ overviewTable, onSave, overviewTableImpo
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{marginTop: '16px'}}>
+            <Box sx={{ marginTop: '16px' }}>
                 <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>Dataflow</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>Interaction</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>Description</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>S</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>T</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>R</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>I</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>D</TableCell>
-                                <TableCell align="center" sx={{fontWeight: 'bold'}}>E</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>Dataflow</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>Interaction</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>Description</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>S</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>T</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>R</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>I</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>D</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>E</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -98,7 +99,7 @@ export default function OverviewTable({ overviewTable, onSave, overviewTableImpo
                                             variant="outlined"
                                             placeholder="write here ..."
                                             value={row.description || ''}
-                                            onChange={(event) => handleDescriptionChange(index, event.target.value)}/>
+                                            onChange={(event) => handleDescriptionChange(index, event.target.value)} />
                                     </TableCell>
                                     <TableCell align="center">
                                         <Checkbox
@@ -148,9 +149,9 @@ export default function OverviewTable({ overviewTable, onSave, overviewTableImpo
                     </Table>
                 </TableContainer>
                 {!saveClicked &&
-                    <Box sx={{display: 'flex', justifyContent: 'flex-end', marginTop: '16px'}}>
-                    <Button variant="contained" color="secondary" onClick={handleSave}>Save</Button>
-                </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+                        <Button variant="contained" color="secondary" onClick={handleSave}>Save</Button>
+                    </Box>
                 }
             </Box>
         </ThemeProvider>

@@ -1,5 +1,5 @@
 import React from "react";
-import {createBrowserRouter, RouterProvider, useNavigate} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./views/Home";
 import Model from "./views/Model";
 import NotFound from "./views/NotFound";

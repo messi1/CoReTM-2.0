@@ -46,7 +46,6 @@ export default class TablesController {
                             type: "ThreatRow",
                             threatId: index + "-" + key + "-" + element.dataflowEnumeration,
                             dataflowEnumeration: element.dataflowEnumeration,
-                            strideType: key,
                             threat: "",
                             mitigation: "",
                             validation: "",
