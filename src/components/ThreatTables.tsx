@@ -1,5 +1,5 @@
 import { IThreatTableRow } from "../interfaces/TableRowInterfaces";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
@@ -13,7 +13,7 @@ import theme from "../utils/theme";
 import AddCircleIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircleOutline";
 
-export default function ThreatTables({ threatTables }: { threatTables: IThreatTableRow[][] }) {
+export default function ThreatTables({ threatTables }: Readonly<{ threatTables: IThreatTableRow[][] }>) {
     const [threatTable, setThreatTable] = useState<IThreatTableRow[][]>(threatTables);
     const lookupMapRef = useRef<Record<string, IThreatTableRow>>({});
 
@@ -29,7 +29,7 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
         };
         lookupMapRef.current = generateLookupMap(threatTable);
 
-    }, [threatTables]);
+    }, [threatTable]);
 
     const updateThreatTable = (threatId: string, field: string, value: string): void => {
         const newTable: IThreatTableRow[][] = [...threatTable];
@@ -129,44 +129,108 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat ID</TableCell>
-                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Dataflow</TableCell>
-                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Threat</TableCell>
-                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Mitigation</TableCell>
-                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Validation</TableCell>
-                                        <TableCell></TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold', verticalAlign: 'top' }}>Threat ID</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold', verticalAlign: 'top' }}>Dataflow</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold', verticalAlign: 'top' }}>Threat</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold', verticalAlign: 'top' }}>Mitigation</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold', verticalAlign: 'top' }}>Validation</TableCell>
+                                        <TableCell sx={{ verticalAlign: 'top' }}></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {table.map((row: IThreatTableRow, rowIndex: number) => (
                                         <TableRow key={row.threatId}>
-                                            <TableCell align="center">{row.threatId}</TableCell>
-                                            <TableCell align="center">{row.dataflowEnumeration}</TableCell>
-                                            <TableCell align="center">
+                                            <TableCell align="center" sx={{ whiteSpace: 'normal', wordWrap: 'break-word', verticalAlign: 'top' }}>
+                                                {row.threatId}
+                                            </TableCell>
+                                            <TableCell align="center" sx={{ whiteSpace: 'normal', wordWrap: 'break-word', verticalAlign: 'top' }}>
+                                                {row.dataflowEnumeration}
+                                            </TableCell>
+                                            <TableCell align="center" sx={{ whiteSpace: 'normal', wordWrap: 'break-word', verticalAlign: 'top', height: '100%' }}>
                                                 <TextField
                                                     size="small"
                                                     variant="outlined"
                                                     placeholder="Describe threat"
+                                                    fullWidth
+                                                    multiline
                                                     value={row.threat}
-                                                    onChange={(event) => handleThreatChange(row.threatId, event.target.value)} />
+                                                    onChange={(event) => handleThreatChange(row.threatId, event.target.value)}
+                                                    sx={{ height: '100%' }}
+                                                    InputProps={{
+                                                        sx: {
+                                                            height: '100%',
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: 0 // Rahmen im normalen Zustand ausblenden
+                                                            },
+                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: '1px', // Rahmen bei Hover sichtbar machen
+                                                                borderColor: 'rgba(0, 0, 0, 0.23)' // Standardfarbe bei Hover
+                                                            },
+                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: '2px', // Rahmen bei Fokus sichtbar machen
+                                                                borderColor: theme.palette.primary.main // Standardfarbe bei Fokus (primäre Farbe des Themas)
+                                                            }
+                                                        }
+                                                    }}
+                                                />
                                             </TableCell>
-                                            <TableCell align="center">
+                                            <TableCell align="center" sx={{ whiteSpace: 'normal', wordWrap: 'break-word', verticalAlign: 'top', height: '100%' }}>
                                                 <TextField
                                                     size="small"
                                                     variant="outlined"
                                                     placeholder="Provide mitigation"
+                                                    fullWidth
+                                                    multiline
                                                     value={row.mitigation}
-                                                    onChange={(event) => handleMitigationChange(row.threatId, event.target.value)} />
+                                                    onChange={(event) => handleMitigationChange(row.threatId, event.target.value)}
+                                                    sx={{ height: '100%' }}
+                                                    InputProps={{
+                                                        sx: {
+                                                            height: '100%',
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: 0 // Rahmen im normalen Zustand ausblenden
+                                                            },
+                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: '1px', // Rahmen bei Hover sichtbar machen
+                                                                borderColor: 'rgba(0, 0, 0, 0.23)' // Standardfarbe bei Hover
+                                                            },
+                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: '2px', // Rahmen bei Fokus sichtbar machen
+                                                                borderColor: theme.palette.primary.main // Standardfarbe bei Fokus (primäre Farbe des Themas)
+                                                            }
+                                                        }
+                                                    }}
+                                                />
                                             </TableCell>
-                                            <TableCell align="center">
+                                            <TableCell align="center" sx={{ whiteSpace: 'normal', wordWrap: 'break-word', verticalAlign: 'top', height: '100%' }}>
                                                 <TextField
                                                     size="small"
                                                     variant="outlined"
                                                     placeholder="Provide validation"
+                                                    fullWidth
+                                                    multiline
                                                     value={row.validation}
-                                                    onChange={(event) => handleValidationChange(row.threatId, event.target.value)} />
+                                                    onChange={(event) => handleValidationChange(row.threatId, event.target.value)}
+                                                    sx={{ height: '100%' }}
+                                                    InputProps={{
+                                                        sx: {
+                                                            height: '100%',
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: 0 // Rahmen im normalen Zustand ausblenden
+                                                            },
+                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: '1px', // Rahmen bei Hover sichtbar machen
+                                                                borderColor: 'rgba(0, 0, 0, 0.23)' // Standardfarbe bei Hover
+                                                            },
+                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                borderWidth: '2px', // Rahmen bei Fokus sichtbar machen
+                                                                borderColor: theme.palette.primary.main // Standardfarbe bei Fokus (primäre Farbe des Themas)
+                                                            }
+                                                        }
+                                                    }}
+                                                />
                                             </TableCell>
-                                            <TableCell align="center">
+                                            <TableCell align="center" sx={{ verticalAlign: 'top' }}>
                                                 {!row.added ? (
                                                     <IconButton onClick={() => handleAddRow(index, rowIndex)}>
                                                         <AddCircleIcon />
@@ -188,3 +252,7 @@ export default function ThreatTables({ threatTables }: { threatTables: IThreatTa
         </ThemeProvider>
     );
 }
+
+
+
+
