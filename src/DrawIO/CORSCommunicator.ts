@@ -15,4 +15,8 @@ export default class CORSCommunicator {
     receive(callback: (event: MessageEvent) => void) {
         window.addEventListener('message', callback);
     }
+
+    public getTarget(): HTMLIFrameElement | null {
+        return this.target;
+    }
 }

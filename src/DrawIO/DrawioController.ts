@@ -3,9 +3,7 @@ import coretm from "./libs/CoReTM.json";
 import CORSCommunicator from "./CORSCommunicator";
 import LocalStorageModel from "./LocalStorageModel";
 import DiagramAnalyser from "./DiagramAnalyser";
-
 import { ICrossingElements } from "../interfaces/DrawioInterfaces";
-
 
 export default class DrawioController {
     private drawio: CORSCommunicator;
@@ -15,18 +13,16 @@ export default class DrawioController {
     private readonly diagramImage: HTMLImageElement;
     private imageReadyCallback: ((image: HTMLImageElement) => void) | null = null;
 
-
     private loadedFromLocalStorage: boolean = false;
     private changedAfterImported: boolean = false;
 
-
     constructor(drawio: CORSCommunicator, storage: LocalStorageModel, projectName: string) {
-        this.drawio = drawio
-        this.storage = storage
+        this.drawio = drawio;
+        this.storage = storage;
         this.diagramAnalyser = new DiagramAnalyser();
         this.projectName = projectName;
         this.diagramImage  = new Image();
-        this.drawio.receive(this.handleIncomingEvents.bind(this))
+        this.drawio.receive(this.handleIncomingEvents.bind(this));
     }
 
     private isJsonString = (str: any) => {
@@ -40,10 +36,10 @@ export default class DrawioController {
 
     private handleIncomingEvents(message: any) {
         if (message.data.length <= 0) {
-            return
+            return;
         }
         if (!this.isJsonString(message.data)) {
-            return
+            return;
         }
         const msg = JSON.parse(message.data);
 
@@ -59,6 +55,9 @@ export default class DrawioController {
                 break;
             case 'configure':
                 this.configureDrawio();
+                break;
+            case 'load':
+                console.log('Stencil loaded: ', msg);
                 break;
             default:
                 console.error('Unknown event: ', msg.event);
@@ -109,10 +108,14 @@ export default class DrawioController {
                     "Helvetica",
                     "Times New Roman"
                 ],
-                ui: 'dark',
+                ui: 'min', // kennedy, atlas (default), dark and min
+                darkMode: false,
                 defaultLibraries: 'CoReTM',
                 defaultCustomLibraries: ['CoReTM'],
                 enabledLibraries: ['CoReTM'],
+                expandLibraries: true,
+                enableCustomLibraries: true,
+                enableCssDarkMode: false,
                 libraries: [{
                     "title": {
                         "main": "CoReTM"
@@ -138,7 +141,8 @@ export default class DrawioController {
                 }],
             }
         }
-        this.drawio.send(configurationAction)
+        this.drawio.send(configurationAction);
+
     }
 
     private loadDrawio(): void {
@@ -176,10 +180,10 @@ export default class DrawioController {
             action: 'export',
             format: 'svg'
         }
-        this.drawio.send(exportAction)
+        this.drawio.send(exportAction);
     }
 
-    private storeDiagram(msg: any) : any {
+    private storeDiagram(msg: any): any {
         this.diagramImage.src = msg.data;
         if (this.imageReadyCallback) {
             this.imageReadyCallback(this.diagramImage);
@@ -193,31 +197,47 @@ export default class DrawioController {
         }
     }
 
-    getChangedAfterImported() : boolean {
-        return this.changedAfterImported
+    getChangedAfterImported(): boolean {
+        return this.changedAfterImported;
     }
 
     setImageReadyCallback(callback: (image: HTMLImageElement) => void) {
         this.imageReadyCallback = callback;
     }
 
-    parseXml() : {crossingElements: ICrossingElements[], invalidDataflows: boolean}  {
-        const xmlDataString : string | null = this.storage.read('DrawioMsg');
-        const parsed = JSON.parse(xmlDataString!);
+    parseXml(): { crossingElements: ICrossingElements[], invalidDataflows: boolean } {
+        const xmlDataString: string | null = this.storage.read('DrawioMsg');
+
+        if (!xmlDataString) {
+            console.error("DrawioMsg is missing or empty in LocalStorage.");
+            return { crossingElements: [], invalidDataflows: false };  
+        }
+
+        let parsed;
+        try {
+            parsed = JSON.parse(xmlDataString);
+        } catch (error) {
+            console.error("Failed to parse DrawioMsg:", error);
+            return { crossingElements: [], invalidDataflows: false };  
+        }
+
+        if (!parsed?.xml) {
+            console.error("Parsed DrawioMsg is missing the xml property.");
+            return { crossingElements: [], invalidDataflows: false };  
+        }
         const xml = parsed.xml;
 
-        let xmlDoc : XMLDocument;
+        let xmlDoc: XMLDocument;
 
         if (xmlDataString) {
-            const parser : DOMParser = new DOMParser();
+            const parser: DOMParser = new DOMParser();
             try {
                 xmlDoc = parser.parseFromString(xml, "text/xml");
-            }
-            catch (e) {
+            } catch (e) {
                 console.log(e);
             }
         }
-        const {crossingElements, invalidDataflows} = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc!);
+        const { crossingElements, invalidDataflows } = this.diagramAnalyser.parseDifferentDfdElementsFromXml(xmlDoc!);
 
         return {
             crossingElements: crossingElements,
